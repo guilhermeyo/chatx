@@ -8,24 +8,32 @@
     <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
     <%= csrf_meta_tag() %>
   </head>
+
   <body>
-    <header>
-      <section class="container">
-        <nav role="navigation">
-          <ul>
-            <li><a href="https://hexdocs.pm/phoenix/overview.html">Get Started</a></li>
-          </ul>
-        </nav>
-        <a href="https://phoenixframework.org/" class="phx-logo">
-          <img src="<%= Routes.static_path(@conn, "/images/phoenix.png") %>" alt="Phoenix Framework Logo"/>
-        </a>
-      </section>
-    </header>
     <main role="main" class="container">
       <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
       <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
-      <%= render @view_module, @view_template, assigns %>
+
+      <div class="chat">
+        <h1 class="title">Welcome to Chatx!</h1>
+
+        <div class="all-messages">
+          <h4 class="header">Messages</h4>
+
+          <div id="messages" class="messages">
+          </div>
+        </div>
+
+        <form>
+          <label>Username</label>
+          <input id="username" type="text" autocomplete="off" />
+
+          <label>Message</label>
+          <input id="message" type="text" autocomplete="off" />
+        </form>
+      </div>
     </main>
+
     <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
   </body>
 </html>
