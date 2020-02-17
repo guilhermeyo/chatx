@@ -14,24 +14,7 @@
       <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
       <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
 
-      <div class="chat">
-        <h1 class="title">Welcome to Chatx!</h1>
-
-        <div class="all-messages">
-          <h4 class="header">Messages</h4>
-
-          <div id="messages" class="messages">
-          </div>
-        </div>
-
-        <form>
-          <label>Username</label>
-          <input id="username" type="text" autocomplete="off" />
-
-          <label>Message</label>
-          <input id="message" type="text" autocomplete="off" />
-        </form>
-      </div>
+      <%= render @view_module, @view_template, assigns %>
     </main>
 
     <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
