@@ -37,10 +37,25 @@ class App {
 
     msgBody.addEventListener('keypress', e => {
       if (e.keyCode == 13) {
-        channel.push("new:message", {
-          username: username.value || 'New User',
-          text: msgBody.value
-        });
+        let csrfToken = document.head.querySelector("[name~=csrf-token][content]").content;
+
+        fetch('/', {
+          method: 'POST', // or 'PUT'
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken
+          },
+          body: JSON.stringify({
+            message: {
+              username: username.value || 'New User',
+              text: msgBody.value
+            }
+          }),
+        })
+        .then((response) => response.json())
+        .then(messageJson => {
+          channel.push("new:message", messageJson.data);
+        })
 
         msgBody.value = "";
       }
