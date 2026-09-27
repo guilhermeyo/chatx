@@ -1,0 +1,433 @@
+{
+ "_doc": "Sound design for 'O Lanche' v2. Read by eleven.py (ElevenLabs requests), mix.py (levels) and synth.py (fallback). 'level' = linear gain of a cue relative to its synth version; ElevenLabs assets are loudness-matched to the synth version first, so levels hold for both sources.",
+ "api": {
+  "base_url": "https://api.elevenlabs.io",
+  "key_env": "ELEVENLABS_API_KEY",
+  "output_format": "mp3_44100_128",
+  "timeout_s": 120,
+  "retries": 3
+ },
+ "tts": {
+  "model_id": "eleven_multilingual_v2",
+  "_model_note": "eleven_multilingual_v2 supports pt-BR and /with-timestamps. eleven_v3 also returns alignment (it is the default of the dialogue-with-timestamps endpoints) and is more expressive; set model_id to 'eleven_v3' or env ELEVEN_TTS_MODEL to try it (stability is snapped to 0/0.5/1 for v3).",
+  "language_code": "pt",
+  "language_code_models": [
+   "eleven_turbo_v2_5",
+   "eleven_flash_v2_5",
+   "eleven_v3"
+  ],
+  "seed": 4242,
+  "apply_text_normalization": "auto",
+  "context": true,
+  "_context_note": "previous_text/next_text = neighbouring lines in film order (script.json). multilingual_v2 takes no language_code, so the context is what keeps short lines ('Valeu!!') in Portuguese. Models listed in context_unsupported_models get no context; any 400/422 is retried once without the optional hints.",
+  "context_unsupported_models": [],
+  "short_line_model": null,
+  "short_line_chars": 10,
+  "_short_line_note": "Optional: e.g. 'eleven_turbo_v2_5' (takes language_code 'pt') for lines shorter than short_line_chars. Off until tried once with a real key."
+ },
+ "voices": {
+  "leo": {
+   "desc": "young bright male kid voice, energetic",
+   "env": "LEO_VOICE_ID",
+   "voice_id": null,
+   "prefer": [
+    "Liam",
+    "Will",
+    "Charlie",
+    "Chris",
+    "Callum",
+    "Eric"
+   ],
+   "fallback_gender": "male",
+   "voice_settings": {
+    "stability": 0.38,
+    "similarity_boost": 0.75,
+    "style": 0.45,
+    "use_speaker_boost": true,
+    "speed": 1.05
+   },
+   "pitch_factor": 1.05,
+   "pan": -0.25,
+   "gain": 1.0,
+   "formant": "shifted"
+  },
+  "bia": {
+   "desc": "young warm female kid voice, friendly",
+   "env": "BIA_VOICE_ID",
+   "voice_id": null,
+   "prefer": [
+    "Jessica",
+    "Laura",
+    "Lily",
+    "Sarah",
+    "Matilda",
+    "Alice"
+   ],
+   "fallback_gender": "female",
+   "voice_settings": {
+    "stability": 0.42,
+    "similarity_boost": 0.75,
+    "style": 0.4,
+    "use_speaker_boost": true,
+    "speed": 1.03
+   },
+   "pitch_factor": 1.04,
+   "pan": 0.25,
+   "gain": 1.0,
+   "formant": "shifted"
+  }
+ },
+ "known_voice_ids": {
+  "_note": "Only used when /v2/voices cannot be listed (e.g. --dry-run). Default voices are being retired on 2026-12-31, so the live listing is always preferred.",
+  "Liam": "TX3LPaxmHKxFdv7VOQHJ",
+  "Will": "bIHbv24MWmeRgasZH58o",
+  "Charlie": "IKne3meq5aSn9XLyUdCD",
+  "Chris": "iP95p4xoKVk53GoZ742B",
+  "Callum": "N2lVS1w4EtoT3dr4eOWO",
+  "Eric": "cjVigY5qzO86Huf0OWal",
+  "Jessica": "cgSgspJ2msm6clMCkdW9",
+  "Laura": "FGY2WhTYpPnrIDTdsKH5",
+  "Lily": "pFZP5JQG7iQjIQuC4Bku",
+  "Sarah": "EXAVITQu4vr4xnSDxMaL",
+  "Matilda": "XrExE9yKIg1WjnnlVkGX",
+  "Alice": "Xb7hH8MSUJpSbSDYk0k2"
+ },
+ "_lines_note": "Per-line overrides keyed by id. eleven.py reads the dialogue TEXT from script.json (the file plan.py times); these texts are only the fallback when script.json is missing.",
+ "lines": [
+  {
+   "id": "l1",
+   "who": "leo",
+   "text": "Oi, Bia! Tudo bem?",
+   "mood": "happy"
+  },
+  {
+   "id": "l2",
+   "who": "bia",
+   "text": "Tudo ótimo! E você?",
+   "mood": "happy"
+  },
+  {
+   "id": "l3",
+   "who": "leo",
+   "text": "Tô bem!",
+   "mood": "happy",
+   "_note": "forced, too-bright cheer before the tummy growl",
+   "voice_settings": {
+    "stability": 0.35,
+    "style": 0.55,
+    "speed": 1.06
+   }
+  },
+  {
+   "id": "l4",
+   "who": "leo",
+   "text": "...mas esqueci meu lanche.",
+   "mood": "sad",
+   "voice_settings": {
+    "stability": 0.55,
+    "style": 0.3,
+    "speed": 0.92
+   }
+  },
+  {
+   "id": "l5",
+   "who": "bia",
+   "text": "Quer metade?",
+   "mood": "kind",
+   "voice_settings": {
+    "stability": 0.45,
+    "style": 0.45,
+    "speed": 1.0
+   }
+  },
+  {
+   "id": "l6",
+   "who": "leo",
+   "text": "Valeu!!",
+   "mood": "excited",
+   "voice_settings": {
+    "stability": 0.3,
+    "style": 0.65,
+    "speed": 1.08
+   }
+  }
+ ],
+ "sfx_defaults": {
+  "model_id": "eleven_text_to_sound_v2",
+  "prompt_influence": 0.55,
+  "suffix": ", cartoon sound effect, clean, no music, no speech, no words",
+  "_suffix_note": "A cue may set its own 'suffix'; vocal cues (giggle, bark, whimper, sniff, tummy_growl, catch_chomp) drop the 'no speech' part so the model is not told to avoid what it is asked for."
+ },
+ "sfx": {
+  "iris_whistle_up": {
+   "prompt": "slide whistle rising quickly, playful 90s TV cartoon intro",
+   "dur": 0.8,
+   "level": 0.22
+  },
+  "birds": {
+   "prompt": "a few light cheerful songbird chirps in a quiet park",
+   "dur": 2.2,
+   "level": 0.5,
+   "loopable": true
+  },
+  "footstep": {
+   "prompt": "single soft cartoon footstep on a dirt park path, light kid step",
+   "dur": 0.5,
+   "level": 0.35
+  },
+  "page_flip": {
+   "prompt": "single paper book page turning, crisp",
+   "dur": 0.5,
+   "level": 0.25
+  },
+  "look_up": {
+   "prompt": "tiny cartoon 'bloop' blip as a character looks up",
+   "dur": 0.5,
+   "level": 0.2
+  },
+  "book_thump": {
+   "prompt": "small hardcover book dropping onto a wooden bench, soft thump",
+   "dur": 0.5,
+   "level": 0.4
+  },
+  "tummy_growl": {
+   "prompt": "comical long hungry stomach growl rumble, cartoon",
+   "dur": 1.0,
+   "level": 0.5,
+   "suffix": ", cartoon sound effect, clean, no music"
+  },
+  "cloud_poof": {
+   "prompt": "soft cartoon puff of smoke appearing, airy poof",
+   "dur": 0.6,
+   "level": 0.6
+  },
+  "drizzle": {
+   "prompt": "tiny gentle rain drizzle pitter-patter from a small cartoon rain cloud",
+   "dur": 3.0,
+   "level": 2.5,
+   "loopable": true
+  },
+  "whoosh": {
+   "prompt": "quick soft whoosh of an arm swinging from behind the back",
+   "dur": 0.5,
+   "level": 0.5
+  },
+  "sandwich_pop": {
+   "prompt": "cartoon 'pop' reveal with a tiny bright bell ding",
+   "dur": 0.7,
+   "level": 0.4
+  },
+  "bread_snap": {
+   "prompt": "crusty sandwich bread being torn in half, crisp crunchy tear",
+   "dur": 0.5,
+   "level": 0.6
+  },
+  "sparkle": {
+   "prompt": "magical sparkly glockenspiel twinkle rising, cartoon star eyes",
+   "dur": 1.0,
+   "level": 0.17
+  },
+  "boing": {
+   "prompt": "cartoon spring boing jump",
+   "dur": 0.6,
+   "level": 0.28
+  },
+  "land_thud": {
+   "prompt": "kid landing on a wooden bench seat, soft bump thud",
+   "dur": 0.5,
+   "level": 0.5
+  },
+  "handoff_pop": {
+   "prompt": "tiny soft cartoon bloop pop of an item handed over",
+   "dur": 0.5,
+   "level": 0.25
+  },
+  "bite": {
+   "prompt": "one crunchy bite into a sandwich, cartoon crunch",
+   "dur": 0.5,
+   "level": 0.45
+  },
+  "dog_trot": {
+   "prompt": "small dog paws trotting quickly on a dirt path, light pitter patter",
+   "dur": 0.6,
+   "level": 0.18,
+   "loopable": true
+  },
+  "sniff": {
+   "prompt": "small puppy sniffing twice, quick nose sniffs",
+   "dur": 0.5,
+   "level": 0.18,
+   "suffix": ", cartoon sound effect, clean, no music"
+  },
+  "whimper": {
+   "prompt": "cute puppy pleading whimper, soft high whine, cartoon",
+   "dur": 0.8,
+   "level": 0.16,
+   "suffix": ", cartoon sound effect, clean, no music"
+  },
+  "giggle": {
+   "prompt": "two young children giggling together briefly, cheerful",
+   "dur": 0.8,
+   "level": 0.45,
+   "suffix": ", cartoon sound effect, clean, no music"
+  },
+  "toss_whoosh": {
+   "prompt": "small object tossed through the air, short airy whoosh",
+   "dur": 0.5,
+   "level": 0.4
+  },
+  "catch_chomp": {
+   "prompt": "small dog snapping jaws to catch a treat mid-air, quick chomp",
+   "dur": 0.5,
+   "level": 0.4,
+   "suffix": ", cartoon sound effect, clean, no music"
+  },
+  "bark": {
+   "prompt": "one short happy small puppy bark 'arf'",
+   "dur": 0.5,
+   "level": 0.9,
+   "suffix": ", cartoon sound effect, clean, no music"
+  },
+  "slide_whistle_down": {
+   "prompt": "slide whistle falling downward, cartoon iris-out ending",
+   "dur": 0.7,
+   "level": 0.25
+  },
+  "wink_ting": {
+   "prompt": "single bright tiny bell 'ting' for a cartoon wink",
+   "dur": 0.6,
+   "level": 0.3
+  },
+  "fim_chord": {
+   "prompt": "cheerful ukulele and glockenspiel 'ta-da' ending chord, cartoon button",
+   "dur": 1.5,
+   "level": 1.0
+  }
+ },
+ "music": {
+  "model_id": "music_v1",
+  "_model_note": "music_v1 takes composition_plan {positive/negative_global_styles, sections[{section_name, positive/negative_local_styles, duration_ms 3000..120000, lines}]}; music_v2/_v2_5 take {chunks:[{text, duration_ms, positive_styles, negative_styles}]}. The Music API is for paid subscribers: on 401/402/403 eleven.py logs and mix.py uses the synth ukulele score.",
+  "prompt": "Gentle instrumental kids' TV cartoon underscore, 90s Saturday-morning style, 100 BPM in C major: bouncy strummed ukulele, soft xylophone melody, light shaker and pizzicato upright bass. Starts happy and sunny, turns briefly sad and melancholy in A minor (slow ukulele arpeggios, lonely glockenspiel), then bursts back to happy, and ends gently on a soft sustained ukulele chord that decays away (no final hit).",
+  "global_positive": [
+   "kids cartoon underscore",
+   "ukulele",
+   "xylophone",
+   "glockenspiel",
+   "light shaker",
+   "pizzicato upright bass",
+   "90s TV cartoon",
+   "instrumental",
+   "gentle",
+   "100 bpm"
+  ],
+  "global_negative": [
+   "vocals",
+   "singing",
+   "drums kit",
+   "electric guitar",
+   "synth bass",
+   "heavy",
+   "loud",
+   "distortion"
+  ],
+  "moods": {
+   "happy": {
+    "name": "Sunny Park",
+    "pos": [
+     "happy",
+     "bouncy strummed ukulele",
+     "playful xylophone melody",
+     "major key",
+     "light shaker"
+    ],
+    "neg": [
+     "sad",
+     "minor key"
+    ]
+   },
+   "sad": {
+    "name": "Forgot Lunch",
+    "pos": [
+     "sad",
+     "melancholy",
+     "slow ukulele arpeggios",
+     "A minor",
+     "lonely glockenspiel",
+     "sparse"
+    ],
+    "neg": [
+     "happy",
+     "bouncy",
+     "percussion"
+    ]
+   },
+   "curious": {
+    "name": "Sniff Sniff",
+    "pos": [
+     "curious",
+     "tiptoe pizzicato",
+     "light xylophone"
+    ],
+    "neg": [
+     "sad",
+     "loud"
+    ]
+   },
+   "end": {
+    "name": "Gentle Ending",
+    "pos": [
+     "gentle ending",
+     "soft sustained final ukulele chord",
+     "natural decay"
+    ],
+    "neg": [
+     "ta-da",
+     "stinger",
+     "drum hit",
+     "long outro"
+    ]
+   }
+  },
+  "default_sections": [
+   {
+    "t": 0,
+    "mood": "happy"
+   },
+   {
+    "t": 5.9,
+    "mood": "sad"
+   },
+   {
+    "t": 10.25,
+    "mood": "happy"
+   },
+   {
+    "t": 14.0,
+    "mood": "end"
+   }
+  ],
+  "default_stinger": 14.5,
+  "level_rms_dbfs": -26,
+  "duck": {
+   "depth_db": 9,
+   "attack_s": 0.06,
+   "release_s": 0.35
+  },
+  "_end_note": "The fim_chord SFX is the film's only 'ta-da'. The score is asked for a soft final chord that has decayed before the stinger, and mix.py fades an ElevenLabs score out from stinger-0.05 s over 0.3 s."
+ },
+ "mix": {
+  "sr": 48000,
+  "voice_rms_dbfs": -17,
+  "sfx_bus_db": -3,
+  "babble_gain": 0.8,
+  "room_send": 0.08,
+  "loudness_lufs": -14.0,
+  "true_peak_dbtp": -1.5,
+  "_master_note": "master: HPF/LPF, capped tanh saturation, integrated loudness to loudness_lufs (BS.1770-4), look-ahead true-peak limiter (4x oversampled, 5 ms look-ahead, 50 ms release) at true_peak_dbtp; leaves headroom for the AAC encode.",
+  "voice_unit": "character",
+  "_voice_unit_note": "'character': if any line of a character lacks a decodable take from one engine+voice, all of that character's lines babble. 'all': the whole cast babbles.",
+  "pitch_engine": "rubberband",
+  "_pitch_note": "rubberband (high-quality phase vocoder, duration exact) with voices.<who>.formant 'shifted' (formants rise with the pitch: younger timbre) or 'preserved'; falls back to asetrate+atempo if ffmpeg lacks rubberband.",
+  "fade_out_s": 0.35
+ }
+}

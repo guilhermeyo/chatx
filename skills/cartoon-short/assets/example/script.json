@@ -1,0 +1,41 @@
+{
+ "_doc": "Final dialogue for O Lanche v2. start = where each voice clip begins (seconds). voices_free.py / eleven.py read this.",
+ "lines": [
+  {
+   "id": "l1",
+   "who": "leo",
+   "text": "Oi, Bia! Tudo bem?",
+   "start": 1.95
+  },
+  {
+   "id": "l2",
+   "who": "bia",
+   "text": "Tudo ótimo! E você?",
+   "start": 4.08
+  },
+  {
+   "id": "l3",
+   "who": "leo",
+   "text": "Tô bem!",
+   "start": 5.86
+  },
+  {
+   "id": "l4",
+   "who": "leo",
+   "text": "...mas esqueci meu lanche.",
+   "start": 7.16
+  },
+  {
+   "id": "l5",
+   "who": "bia",
+   "text": "Quer metade?",
+   "start": 9.25
+  },
+  {
+   "id": "l6",
+   "who": "leo",
+   "text": "Valeu!!",
+   "start": 11.05
+  }
+ ]
+}
