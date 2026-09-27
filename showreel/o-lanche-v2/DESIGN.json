@@ -1,0 +1,700 @@
+{
+  "logline": "Léo chega todo sorridente no banco da praça e jura que está bem, mas a barriga ronca no silêncio e entrega que ele esqueceu o lanche. Uma nuvenzinha de chuva só dele aparece até a Bia tirar um sanduíche de trás das costas e dividir. As migalhas que caem no chão trazem o Pipoca, que ganha a casquinha no ar e pisca para a câmera: a gentileza vai passando de um para o outro.",
+  "lines": [
+    {
+      "id": "L1",
+      "who": "leo",
+      "text": "Oi, Bia! Tudo bem?",
+      "approx_start": 2.12,
+      "delivery": "Animado, meio alto, chamando de uns metros e ainda sem fôlego da corrida. Sobe o tom em 'Bia!', respira uns 0,12 s e diz 'Tudo bem?' mais baixo e simpático, com a pergunta subindo no fim. Termina por volta de 3,58 s (18 caracteres, ~12,3 c/s)."
+    },
+    {
+      "id": "L2",
+      "who": "bia",
+      "text": "Tudo ótimo! E você?",
+      "approx_start": 3.92,
+      "delivery": "Calorosa, com sorriso na voz em 'ótimo!'. Pausa de 0,15 s e 'E você?' mais suave e curioso, subindo no fim para passar a vez. Termina por volta de 5,45 s (19 caracteres, ~12,4 c/s)."
+    },
+    {
+      "id": "L3a",
+      "who": "leo",
+      "text": "Tô bem!",
+      "approx_start": 5.62,
+      "delivery": "Alegre DEMAIS, rápido e agudo, a mentira é audível. Termina seco em 'bem!', por volta de 6,12 s, porque a música corta junto com a última sílaba."
+    },
+    {
+      "id": "L3b",
+      "who": "leo",
+      "text": "Esqueci meu lanche...",
+      "approx_start": 7.12,
+      "delivery": "Depois do ronco ele desaba: meio suspiro antes, voz baixa e envergonhada, caindo até 'lanche' e arrastando o '...' como um pneu esvaziando. Termina por volta de 8,55 s (19 caracteres, ~13,3 c/s)."
+    },
+    {
+      "id": "L4",
+      "who": "bia",
+      "text": "Quer metade?",
+      "approx_start": 9.6,
+      "delivery": "Doce e brincalhona, com sorriso de canto. Pergunta subindo, com uma leve ênfase em 'me-TA-de' que fica suspensa no ar como uma oferta. Termina por volta de 10,5 s."
+    },
+    {
+      "id": "L5",
+      "who": "leo",
+      "text": "Valeu!!",
+      "approx_start": 11.4,
+      "delivery": "Pura alegria, quase um gritinho, com uma inspiração animada antes. 'Vaa-LEU!!' com a voz subindo, e termina por volta de 11,95 s."
+    },
+    {
+      "id": "L6",
+      "who": "bia",
+      "text": "Hihi!",
+      "approx_start": 13.26,
+      "delivery": "Risadinha tímida e curta atrás da mão, de boca cheia. Começa uns 2 quadros antes do Léo (ela percebe primeiro) e termina por volta de 13,6 s."
+    },
+    {
+      "id": "L7",
+      "who": "leo",
+      "text": "Hahaha!",
+      "approx_start": 13.3,
+      "delivery": "Risada de barriga, maior e mais solta que a dela, curta, uns 0,45 s. Termina por volta de 13,78 s, bem na hora em que ele arremessa a casquinha."
+    }
+  ],
+  "beats": [
+    {
+      "name": "irisIn",
+      "t": 0.0,
+      "what": "A íris abre de 0,00 a 0,50 s (easeOut), centrada na cabeça da Bia no ponto de tela (1062,384). Ela lê absorta, com o livro subindo e descendo ±2 px na respiração."
+    },
+    {
+      "name": "stepsOff",
+      "t": 0.35,
+      "what": "Passos de tênis fora de quadro, à esquerda: o som chega antes da imagem."
+    },
+    {
+      "name": "pageTurn",
+      "t": 0.4,
+      "what": "A Bia vira a página e dá um sorrisinho para o livro (0,5 → 0,8). O mundo dela é tranquilo."
+    },
+    {
+      "name": "pullOut",
+      "t": 0.6,
+      "what": "A câmera recua e faz um pan para o plano geral, de 0,60 a 1,60 s. O Léo entra trotando pela esquerda, de x 250 a 772, entre 0,55 e 1,55 s."
+    },
+    {
+      "name": "skid",
+      "t": 1.55,
+      "what": "Derrapada: ele passa do ponto e para em x 772 com lean -0.25, deslizando 12 px, e assenta em x 760 às 1,72 s. Squash de 2 quadros, com os espetos do cabelo seguindo o movimento 2 desenhos depois."
+    },
+    {
+      "name": "hairPat",
+      "t": 1.72,
+      "what": "TIQUE DO LÉO: dois tapinhas nervosos no cabelo (1,72 e 1,84), com a mão aberta. Os espetos voltam no lugar com mola."
+    },
+    {
+      "name": "waveAntic",
+      "t": 1.95,
+      "what": "Antecipação do aceno: inspira e o braço de trás desce 0,3 rad. Corte na ação às 2,05 s, com o braço subindo."
+    },
+    {
+      "name": "greet",
+      "t": 2.12,
+      "what": "L1, com o aceno do braço de TRÁS (armF, para não cobrir o rosto), 3 balanços até 2,95 s, lean +0,1 em 'Bia!'."
+    },
+    {
+      "name": "bookTwitch",
+      "t": 2.15,
+      "what": "No 'Oi', o livro da Bia (visível na borda direita) dá um tranquinho para cima de 6 px. É a antecipação dela."
+    },
+    {
+      "name": "bookPeek",
+      "t": 3.6,
+      "what": "CU da Bia: o livro desce em 3 degraus, nos dois tempos da animação. Os olhos e os óculos aparecem por cima da capa e seguram 3 quadros, com um brilho passando pelas lentes."
+    },
+    {
+      "name": "bookShut",
+      "t": 3.86,
+      "what": "O livro fecha num estalo ('thup') e ela o abraça contra o peito, sorrindo."
+    },
+    {
+      "name": "reply",
+      "t": 3.92,
+      "what": "L2. Em 'E você?' (4,85 s) a cabeça inclina -0,08 para o lado do Léo, as sobrancelhas sobem 0,5 e ela pisca uma vez às 5,2 s."
+    },
+    {
+      "name": "forcedGrin",
+      "t": 5.62,
+      "what": "L3a com um joinha na altura do peito (armN [1.25,1.05], fist) e um sorriso 10% maior que na saudação (smile 1.0, open 0.3). As sobrancelhas franzem 0,5: a contradição entrega a mentira."
+    },
+    {
+      "name": "musicCut",
+      "t": 6.12,
+      "what": "A música PARA SECA junto com o 'bem!'. Só o ambiente fica, a -30 dB."
+    },
+    {
+      "name": "awkwardHold",
+      "t": 6.12,
+      "what": "Silêncio de 0,33 s. O sorriso fica congelado (só o traço fervendo) e apenas as pupilas se mexem, para a esquerda e de volta: 'será que ela percebeu?'."
+    },
+    {
+      "name": "growl",
+      "t": 6.45,
+      "what": "RONCO de 6,45 a 7,00 s. Punch-in de 3 quadros e tremor de ±3 px nos picos (6,50, 6,72 e 6,90). A barriga faz squash na borda inferior do quadro. O sorriso continua congelado enquanto as pupilas escorregam para a barriga (look [0.2,0.9]) às 6,52 s."
+    },
+    {
+      "name": "sweat",
+      "t": 6.6,
+      "what": "Aparece uma gota de suor ('tink'). O joinha murcha e o punho se abre entre 6,70 e 6,90 s."
+    },
+    {
+      "name": "sheepish",
+      "t": 7.0,
+      "what": "Os olhos voltam para a Bia, com blush 0,5 e sobrancelhas levantadas e franzidas."
+    },
+    {
+      "name": "deflate",
+      "t": 7.05,
+      "what": "O Léo esvazia em sobreposição de movimentos: os ombros caem (7,05), a cabeça acompanha 2 quadros depois (nod +10) e as pálpebras (0,6) e a boca (-0,7) mais 2 quadros depois. Os braços pendem e balançam uma vez."
+    },
+    {
+      "name": "confess",
+      "t": 7.12,
+      "what": "L3b. Os olhos descem para o chão: ele não consegue olhar para ela."
+    },
+    {
+      "name": "cloudIn",
+      "t": 7.7,
+      "what": "A câmera recua e sobe. Uma nuvenzinha de chuva desce do alto do quadro e assenta em (775,330) às 7,95 s, com um 'fwump' e o wah-wah do trombone. Garoa até 10,78 s."
+    },
+    {
+      "name": "plink",
+      "t": 8.3,
+      "what": "Uma gota bate no nariz dele ('plink'). Ele pisca e a cabeça dá um tremidinho de 2 px. Fora isso fica imóvel: a quietude vende a tristeza. O plano segura até 8,65 s."
+    },
+    {
+      "name": "biaFeels",
+      "t": 8.65,
+      "what": "ECU da Bia: a sobrancelha espelha a dele (raise 0,5 e knit 0,6) e a boca faz um 'own' pequeno. Segura 0,15 s."
+    },
+    {
+      "name": "glint",
+      "t": 8.82,
+      "what": "TIQUE DA BIA: ela empurra os óculos com o indicador (armN [2.4,1.3], mão 'point') e as lentes brilham (T.star4, 'ting' de glockenspiel). Às 8,86 s vem o sorriso de canto e os olhos deslizam para o lado, para trás das costas."
+    },
+    {
+      "name": "reachBack",
+      "t": 8.92,
+      "what": "Antecipação: ela se inclina para trás (lean -0,1) e os dois braços somem atrás das costas."
+    },
+    {
+      "name": "whipTilt",
+      "t": 8.98,
+      "what": "Whip-tilt de 3 quadros, com smear, até as mãos dela."
+    },
+    {
+      "name": "hammer",
+      "t": 9.08,
+      "what": "HAMMERSPACE: o sanduíche inteiro surge com um 'pop' nas duas mãos, em pose de 'ta-dá' congelada por 3 quadros."
+    },
+    {
+      "name": "squeeze",
+      "t": 9.18,
+      "what": "Antecipação do estalo: o sanduíche sofre squash +0,2."
+    },
+    {
+      "name": "snap",
+      "t": 9.25,
+      "what": "Ela parte o sanduíche ao meio: as metades se afastam ±40 px, com letreiro 'CRAC!' e explosão de migalhas, e um bump de câmera de 1 quadro. Três migalhas caem para fora do quadro e FICAM no chão em (1290,905), (1210,910) e (1150,903). Esse rastro é a preparação para o cachorro."
+    },
+    {
+      "name": "offer",
+      "t": 9.55,
+      "what": "Two-shot: o braço dela atravessa o vão entre os dois (strN 1 → 1,5 com overshoot de 8 px, assentando em 3 quadros). A metade para a uns 60 px do rosto do Léo. L4 às 9,60 s."
+    },
+    {
+      "name": "eyeDart",
+      "t": 9.8,
+      "what": "Os olhos do Léo vão do sanduíche para a Bia e de volta (9,80 e 10,00 s), nos dois tempos, ainda debaixo da nuvem e com as pálpebras em 0,4."
+    },
+    {
+      "name": "doubleBlink",
+      "t": 10.28,
+      "what": "Duas piscadas secas (10,28 e 10,42 s): ele não acredita."
+    },
+    {
+      "name": "stars",
+      "t": 10.68,
+      "what": "CU do Léo. Depois de 3 quadros de olhar vazio (10,55 a 10,68 s), as pupilas viram estrelas num único quadro ('ding'). Snap-zoom de 2 quadros e a boca abre em 'O'."
+    },
+    {
+      "name": "cloudPoof",
+      "t": 10.78,
+      "what": "A nuvem estoura em fumaça e brilhos (a borda aparece no alto do quadro). A garoa para e a luz quente volta."
+    },
+    {
+      "name": "hopAntic",
+      "t": 10.92,
+      "what": "Ele se agacha (a cabeça desce 20 px, sq +0,15)."
+    },
+    {
+      "name": "launch",
+      "t": 11.06,
+      "what": "Salto (stretch -0,25, 'boing'). Corte na ação às 11,10 s."
+    },
+    {
+      "name": "land",
+      "t": 11.25,
+      "what": "Ele pousa sentado em x 945 com squash +0,4 e o banco range. Tremor de 5 px que decai em 0,15 s."
+    },
+    {
+      "name": "grab",
+      "t": 11.32,
+      "what": "O braço dele estica até strN 2,2 com um 'sproing' e agarra a metade. O braço da Bia volta com mola às 11,38 s ('thwip')."
+    },
+    {
+      "name": "thanks",
+      "t": 11.4,
+      "what": "L5, com os olhos de alegria '^^' e os ombros para cima, abraçando o sanduíche."
+    },
+    {
+      "name": "dogNose",
+      "t": 11.8,
+      "what": "Um focinho farejando entra pela borda direita, rente ao chão. O Pipoca entra atrás, com o nariz no rastro de migalhas."
+    },
+    {
+      "name": "tiltDown",
+      "t": 11.95,
+      "what": "A câmera desce e abre para revelar o chão e o rastro de migalhas (11,95 a 12,40 s)."
+    },
+    {
+      "name": "syncBite",
+      "t": 11.98,
+      "what": "BATIDA DO CORAÇÃO: os dois mordem no MESMO quadro, com um único crunch cheio. Mastigam com os olhos '^^' e as pernas balançando em fase."
+    },
+    {
+      "name": "dogNom",
+      "t": 12.02,
+      "what": "O Pipoca aspira as migalhas: 'nhac' em x 1290 (12,02), 1210 (12,14) e 1150 (12,24). As orelhas quicam 1 desenho depois de cada 'nhac'. As mordidas soam como uma rima com a das crianças."
+    },
+    {
+      "name": "biaBlush",
+      "t": 12.05,
+      "what": "A Bia abre os olhos, olha o Léo de lado enquanto mastiga, e cora devagar (blush 0 → 0,6 em 0,35 s). Sem nenhuma fala: é o momento mais quieto do filme."
+    },
+    {
+      "name": "leoDevours",
+      "t": 12.12,
+      "what": "O Léo ataca mais duas mordidas (12,12 e 12,28 s) enquanto a Bia ainda está na primeira. Às 12,30 s só sobra a casquinha (state 2)."
+    },
+    {
+      "name": "dogSit",
+      "t": 12.36,
+      "what": "O Pipoca senta em x 1095 com um 'plop' (sq +0,1) e as orelhas continuam o movimento por 2 desenhos."
+    },
+    {
+      "name": "kidsNotice",
+      "t": 12.4,
+      "what": "As crianças param de mastigar e olham para baixo (look [0.6,0.9]). O Léo congela com a casquinha no meio do caminho até a boca."
+    },
+    {
+      "name": "sniffUp",
+      "t": 12.5,
+      "what": "CU do Pipoca: duas fungadas para cima, em direção às mãos (12,50 e 12,60 s), com o focinho tremendo."
+    },
+    {
+      "name": "puppy",
+      "t": 12.65,
+      "what": "Olhos de filhote crescem (puppy 0 → 1 em 0,18 s), orelhas caídas (earPerk 0), cabeça inclinada 0,15 e uma lágrima. Gemidinho às 12,75 s. O rabo PARA de abanar. SEGURA de 12,83 a 13,10 s: o único movimento é o tremor da lágrima."
+    },
+    {
+      "name": "lookEach",
+      "t": 13.12,
+      "what": "Two-shot de reação: as duas cabeças sobem do cachorro para a outra criança. O Léo vira primeiro e a Bia 2 quadros depois (13,16). As sobrancelhas das duas sobem 0,4 juntas e seguram 0,1 s."
+    },
+    {
+      "name": "laugh",
+      "t": 13.26,
+      "what": "L6 e L7. A Bia cobre a boca com a mão e o Léo joga a cabeça para trás (tilt -0,1). Os ombros quicam nos dois tempos, em fases diferentes."
+    },
+    {
+      "name": "tossAntic",
+      "t": 13.62,
+      "what": "Ainda rindo, o Léo olha para a casquinha (13,60) e puxa o pulso para trás em 2 quadros."
+    },
+    {
+      "name": "toss",
+      "t": 13.72,
+      "what": "Arremesso com linhas de velocidade. A casquinha gira 1,5 volta num arco de (990,650), passando pelo ápice (1060,520) às 13,86 s, até a boca do cachorro, perto de (1085,745), às 14,00 s."
+    },
+    {
+      "name": "dogJump",
+      "t": 13.88,
+      "what": "O Pipoca se agacha (13,80, sq +0,2) e salta (mode 'jump', lift até 95 px) para a frente do banco."
+    },
+    {
+      "name": "catch",
+      "t": 14.0,
+      "what": "Abocanha no ar: 'Arf!' com a explosão de efeito em cabeça+(120,-30), escala 0,55. Freeze de 1 quadro e tremor de 4 px. A Bia bate palmas às 14,06 s."
+    },
+    {
+      "name": "dogLand",
+      "t": 14.14,
+      "what": "Pouso com squash +0,12, as orelhas seguem o movimento por 4 quadros e ele mastiga. O rabo volta a abanar."
+    },
+    {
+      "name": "irisOut",
+      "t": 14.25,
+      "what": "A íris fecha em volta da cabeça do Pipoca (espaço de tela), de raio 1400 para 180 px entre 14,25 e 14,40 s (easeOut)."
+    },
+    {
+      "name": "wink",
+      "t": 14.44,
+      "what": "Dentro da íris parada, o Pipoca vira para a câmera (look [0,0]) e pisca (wink 1) com a casquinha na boca, blush e um brilhinho ('ding'). Segura até 14,62 s."
+    },
+    {
+      "name": "irisClose",
+      "t": 14.62,
+      "what": "A íris fecha de 180 para 0 entre 14,62 e 14,72 s."
+    },
+    {
+      "name": "fim",
+      "t": 14.72,
+      "what": "'Fim.' em Patrick Hand, branco sobre preto, entra quicando (easing back em 0,18 s) e segura até 15,00. Stinger musical."
+    }
+  ],
+  "shots": [
+    {
+      "id": "S1_open_bia_to_wide",
+      "start": 0.0,
+      "end": 2.05,
+      "camera": "Parado em {cx:1175, cy:600, z:2.0} de 0,00 a 0,60 (plano médio da Bia; cabeça no ponto de tela 1062,384). De 0,60 a 1,60, recuo com pan em inOut até {cx:990, cy:620, z:1.28}, depois creep até z 1.30 às 2,05. Visível a z 1.28: x 240–1740, y 198–1042.",
+      "transition_in": "Íris abrindo de 0,00 a 0,50, centrada na cabeça da Bia (tela 1062,384).",
+      "content": "Primeiro a Bia, tranquila, lendo e virando a página (0,40), com a lancheira do lado. O recuo da câmera revela o Léo trotando pela esquerda (x 250 → 772). Ele derrapa (1,55), assenta em x 760 (1,72), arruma o cabelo (1,72–1,95) e prepara o aceno. Fica definido o eixo: Léo à esquerda da tela olhando para a direita, Bia à direita olhando para a esquerda. A câmera nunca cruza o banco."
+    },
+    {
+      "id": "S2_ms_leo_greet",
+      "start": 2.05,
+      "end": 3.6,
+      "camera": "{cx:850, cy:530, z:2.4} → {cx:845, cy:528, z:2.5}, push linear lento. Visível x 450–1250, y 305–755. Cabeça do Léo na tela em ~790,490, com espaço à direita; o livro aberto da Bia aparece na borda direita.",
+      "transition_in": "Corte na ação (o braço subindo para o aceno).",
+      "content": "L1 com o aceno do braço de trás (armF [2.6, 0.4±0.5·sin], mão 'wave'), lean +0,1 em 'Bia!', olhar [1,-0.1] para baixo e para a direita, na direção dela. Na borda direita, o livro dá um tranquinho no 'Oi' (2,15)."
+    },
+    {
+      "id": "S3_cu_bia_reply",
+      "start": 3.6,
+      "end": 5.55,
+      "camera": "{cx:1180, cy:530, z:2.9} → {cx:1185, cy:528, z:3.0}, push lento. Visível x 849–1511, y 344–716. Cabeça da Bia (1226,522) na tela em ~1080,515, com espaço à esquerda. DOF no fundo.",
+      "transition_in": "Corte seco (contraplano).",
+      "content": "O livro desce e os olhos espiam por cima (3,60–3,80), com brilho nas lentes. O livro fecha num estalo (3,86) e ela o abraça. L2 (3,92–5,45), inclinando a cabeça para a esquerda da tela em 'E você?' (4,85). Olhar para a esquerda e levemente para cima (o Léo está em pé)."
+    },
+    {
+      "id": "S4_leo_lie_growl_cloud",
+      "start": 5.55,
+      "end": 8.65,
+      "camera": "5,55–6,45: {cx:815, cy:530, z:2.6} → {cx:808, cy:528, z:2.7}, push lento sobre a mentira. 6,45: PUNCH-IN de 3 quadros (nos uns) para {cx:805, cy:560, z:2.8} (visível y 367–753, a barriga entra na borda inferior), com tremor de ±3 px nos picos do ronco (6,50, 6,72 e 6,90). 7,55–8,05: ease para trás e para cima até {cx:790, cy:470, z:2.3} (visível y 235–705), abrindo espaço para a nuvem em y 330. Segura até 8,65.",
+      "transition_in": "Corte seco de volta ao Léo.",
+      "content": "Um plano contínuo para a piada acontecer em tempo real. 'Tô bem!' com joinha e sorriso grande demais, e a música CORTA. Silêncio de 0,33 s com o sorriso congelado e só as pupilas se mexendo. RONCO: o punch-in, as pupilas escorregando para a barriga, a gota de suor, o joinha murchando. Ele olha para a Bia, envergonhado, esvazia e diz 'Esqueci meu lanche...' olhando para o chão. A nuvem desce (7,70–7,95), a gota faz 'plink' no nariz (8,30) e o plano segura a imagem triste."
+    },
+    {
+      "id": "S5_ecu_bia_idea_to_insert",
+      "start": 8.65,
+      "end": 9.55,
+      "camera": "8,65–8,98: ECU {cx:1200, cy:525, z:3.0} (visível x 880–1520, y 345–705). 8,98–9,10: whip-tilt de 3 quadros com smear até o INSERT {cx:1150, cy:615, z:3.2} (visível x 850–1450, y 446–784). Bump de 1 quadro e 3 px no estalo (9,25).",
+      "transition_in": "Corte seco (contraplano).",
+      "content": "A Bia sente junto: a sobrancelha espelha a do Léo. Aí vem a ideia: ela empurra os óculos, as lentes brilham ('ting'), aparece o sorriso de canto e os olhos deslizam para o lado. Ela leva as mãos para trás e a câmera faz o whip-tilt. O sanduíche surge com um 'pop' (hammerspace), faz squash e ESTALA ao meio com 'CRAC!' e migalhas. Segura 0,3 s nas migalhas caindo, com o sorriso dela ainda visível no alto do insert."
+    },
+    {
+      "id": "S6_twoshot_offer",
+      "start": 9.55,
+      "end": 10.55,
+      "camera": "{cx:1030, cy:520, z:1.9} → {cx:1020, cy:518, z:1.95}, drift lento na direção do Léo. Visível x 525–1535, y 236–804. Léo na tela em ~447, com a nuvem em y ~179; Bia em ~1359.",
+      "transition_in": "Corte seco (abre para o two-shot).",
+      "content": "A Bia ensolarada e o Léo debaixo da chuva no mesmo quadro. O braço de borracha dela atravessa o vão vazio com a metade do sanduíche, uma silhueta limpa contra o encosto. L4 'Quer metade?'. Os olhos dele vão do sanduíche para ela e de volta, e ele dá duas piscadas de quem não acredita."
+    },
+    {
+      "id": "S7_cu_leo_stars",
+      "start": 10.55,
+      "end": 11.1,
+      "camera": "{cx:800, cy:490, z:3.0}. Às 10,68, snap-zoom de 2 quadros até z 3.25, relaxando para z 3.15 às 10,85. Visível a z 3.0: x 480–1120, y 310–670 (a base da nuvem, em y ~360, fica na borda superior). No agachamento a câmera fica parada e a cabeça dele desce no quadro.",
+      "transition_in": "Corte seco (CU de reação).",
+      "content": "3 quadros de olhar vazio, depois as estrelas num único quadro ('ding'). A boca abre de 'O' para um sorrisão, a nuvem estoura em brilhos e a luz esquenta. Ele se agacha e salta, e o corte cai no quadro mais rápido."
+    },
+    {
+      "id": "S8_bench_share_dog_trail",
+      "start": 11.1,
+      "end": 12.45,
+      "camera": "11,10–11,95: {cx:1092, cy:612, z:1.87} (visível x 579–1605, y 323–901), com tremor de pouso de 5 px às 11,25. 11,95–12,40: ease inOut para baixo, até {cx:1095, cy:680, z:1.75} (visível x 546–1644, y 371–989), revelando o chão e o rastro de migalhas.",
+      "transition_in": "Corte na ação (o Léo entra pela esquerda do quadro no meio do salto).",
+      "content": "O Léo pousa em x 945, o braço de borracha pega a metade, 'Valeu!!'. MORDIDA SINCRONIZADA (11,98): os dois de olhos '^^', pernas balançando em fase. O Léo devora mais duas mordidas enquanto a Bia cora de lado. O focinho do Pipoca entra pela borda direita (11,80) e ele segue o rastro nhac-nhac-nhac. O público vê o cachorro antes das crianças. Ele senta (12,36), as crianças olham para baixo (12,40) e o Léo congela com a casquinha."
+    },
+    {
+      "id": "S9_cu_pipoca_puppy",
+      "start": 12.45,
+      "end": 13.1,
+      "camera": "{cx:1075, cy:745, z:3.2} → {cx:1075, cy:740, z:3.3}, push emocional lento. Visível x 775–1375, y 576–914. Cabeça do Pipoca (~1070,766) no centro. As mãos das crianças com o sanduíche e a casquinha no alto do quadro dão um alvo para o olhar dele. DOF 6 px no fundo.",
+      "transition_in": "Corte seco (insert baixo).",
+      "content": "Duas fungadas para cima, depois os olhos de filhote crescem, as orelhas caem, a cabeça inclina, a lágrima treme e ele solta um gemidinho. O rabo para. SEGURA uns 0,27 s em silêncio (a música fica só numa nota de caixinha de música)."
+    },
+    {
+      "id": "S10_kids_react_laugh",
+      "start": 13.1,
+      "end": 13.6,
+      "camera": "{cx:1092, cy:570, z:2.0}, parado. Visível x 612–1572, y 300–840. O Pipoca fica na borda inferior, no centro, formando um triângulo com as crianças.",
+      "transition_in": "Corte seco (two-shot de reação; é o maior salto de volume do filme, do silêncio para a risada).",
+      "content": "As crianças olham para o cachorro, depois uma para a outra. As sobrancelhas sobem juntas, seguram, e vem a risada: 'Hihi!' atrás da mão e 'Hahaha!' com a cabeça para trás. O Léo tem só a casquinha na mão; a Bia ainda está com quase toda a metade dela."
+    },
+    {
+      "id": "S11_toss_catch",
+      "start": 13.6,
+      "end": 14.25,
+      "camera": "{cx:1070, cy:640, z:1.55} (visível x 451–1689, y 292–988). 13,72–13,86: tilt até cy 620 acompanhando a casquinha até o ápice, depois volta. Tremor de 4 px na pegada (14,00). 14,02–14,40: push em inOut até {cx:1085, cy:780, z:2.2}, que continua por baixo da íris.",
+      "transition_in": "Corte seco (abre para a ação).",
+      "content": "O Léo olha para a casquinha, puxa o pulso para trás e arremessa. A casquinha gira no arco contra o encosto. O Pipoca se agacha e salta em frente ao banco (lift 95 px, entre os joelhos das crianças), abocanha no ar ('Arf!' com explosão e freeze de 1 quadro) e pousa mastigando. A Bia bate palmas e os dois abrem sorrisos '^^'."
+    },
+    {
+      "id": "S12_iris_wink_fim",
+      "start": 14.25,
+      "end": 15.0,
+      "camera": "Termina o push iniciado em S11 e assenta em {cx:1085, cy:780, z:2.2} às 14,40. O centro da íris acompanha a cabeça do Pipoca em espaço de tela, perto de (952,510).",
+      "transition_in": "Íris fechando: raio 1400 → 180 (14,25–14,40, easeOut), parada durante a piscadela, 180 → 0 (14,62–14,72).",
+      "content": "Dentro da íris pequena, o Pipoca olha para a câmera e pisca (14,44–14,62) com a casquinha na boca e bochecha corada ('ding'). Preto. 'Fim.' entra quicando às 14,72 s e segura até 15,00 s, com o stinger."
+    }
+  ],
+  "acting": [
+    "REGRA GERAL: em todo plano um personagem ATUA e o outro REAGE. Imobilidade total só nas pausas marcadas: o sorriso congelado (6,12–6,45), a imagem triste (8,30–8,65), os olhos de filhote (12,83–13,10) e a piscadela (14,44–14,62). Nessas pausas a imobilidade É a piada, e o traço fervendo mantém o quadro vivo.",
+    "EIXO E OLHARES: o Léo fica sempre na esquerda da tela olhando para a direita, e a Bia na direita olhando para a esquerda. Em pé, o Léo olha levemente para baixo (look [1,-0.1] com a cabeça acima da dela) e a Bia sentada olha levemente para cima. Nos planos individuais, as pupilas miram onde o outro está fora de quadro. No S10 todos olham para baixo, para o cachorro, e o cachorro olha para cima e para a esquerda, para as mãos. Pupilas sempre firmes no alvo.",
+    "ENTRADA DO LÉO: trote alegre nos dois tempos, vel ~480 px/s para o cabelo arrastar, quique de 10 px na cabeça e braços balançando ±0,45. Na derrapada, um quadro inclinado para trás (lean -0.25) com os pés deslizando 12 px, squash de 2 quadros, e o cabelo e a camiseta seguem o movimento por 2 a 3 desenhos. Nada para de uma vez.",
+    "TIQUES (cada um aparece uma vez e custa uns 0,25 s): o Léo dá tapinhas no cabelo quando quer agradar (1,72); a Bia empurra os óculos, com brilho, quando tem uma ideia (8,82). É o que faz deles pessoas, não bonecos.",
+    "ACENO: o braço de TRÁS (armF) desce 0,3 rad antes de subir, para não cobrir o rosto nem o nariz. Na checagem de storyboard, o aceno com o braço da frente tapava a cara. 3 balanços a cada ~0,25 s.",
+    "A PEEK DA BIA: o livro desce em 3 degraus e os olhos aparecem primeiro, com o brilho passando pelas lentes. Fecha num estalo e ela abraça o livro no peito. Em 'E você?', a inclinação de cabeça é o convite para ele falar.",
+    "A MENTIRA DO LÉO: o 'Tô bem!' leva joinha na altura do peito (armN [1.25,1.05]) e um sorriso 10% maior que o da saudação, com as sobrancelhas franzidas 0,5. Esse descompasso é o que entrega. No silêncio a cabeça fica congelada e só as pupilas vão para o lado e voltam.",
+    "RONCO: as pupilas descem PRIMEIRO (look [0.2,0.9]), 2 quadros antes de a cabeça mexer, com o sorriso ainda congelado. A gota de suor aparece, o joinha murcha e o punho abre. Aí ele volta a olhar para a Bia: blush 0,5, sobrancelhas levantadas e franzidas (envergonhado).",
+    "ESVAZIANDO: sobreposição de movimentos, não uma troca de pose. Os ombros caem (7,05), a cabeça vem 2 quadros depois (nod +10, lean +0,15) e as pálpebras (0,6) e a boca (-0,7) mais 2 quadros depois. Os braços pendem e balançam uma vez. No 'lanche...' os olhos ficam no chão, não nela.",
+    "EMPATIA DA BIA (8,65): as sobrancelhas dela espelham as dele (raise 0,5, knit 0,6) por 0,15 s antes da ideia. O público ri do Léo e se comove com a Bia.",
+    "O SAQUE E O ESTALO: antecipação de 4 quadros (lean -0,1, os braços somem atrás das costas), o sanduíche surge num quadro com um 'pop', pose de 'ta-dá' congelada por 3 quadros, squash de antecipação e ESTALO. Depois do estalo, segura nas migalhas caindo.",
+    "A OFERTA: o braço estica (strN 1,5) mas o tronco inclina só 0,05: ela é generosa sem invadir. A metade para bem na frente do rosto dele e fica parada durante as piscadas; a mão parada é a pergunta.",
+    "ESTRELAS E SALTO: 3 quadros de olhar vazio e as estrelas entram num único quadro, sem transição. Agacha (a cabeça desce 20 px, sq +0,15), estica no voo (sq -0,25), squash no pouso (+0,4) com overshoot, e os espetos do cabelo assentam em 3 desenhos (spring f 2,2, d 8). O braço de borracha vai a strN 2,2 com ease out e volta com overshoot.",
+    "MORDIDA SINCRONIZADA (11,98): os braços sobem no MESMO desenho e mordem no MESMO quadro. Mastigam com as bochechas subindo e descendo (boca 0 ↔ 0,2 a 6 Hz), olhos '^^' e pernas balançando ±0,15 rad a 1,5 Hz, em fase. A amizade é mostrada pelo ritmo, sem fala. Contraste: a Bia dá UMA mordidinha delicada, o Léo ataca três.",
+    "BIA CORANDO (12,05): ela abre os olhos primeiro, olha o Léo de lado e o blush sobe devagar. Sutil, sem coraçõezinhos.",
+    "PIPOCA: o focinho entra primeiro, com o nariz rente ao chão (sniff 1). Cada 'nhac' faz as orelhas quicarem 1 desenho depois. Ao sentar, as orelhas continuam caindo por 2 desenhos. Nos olhos de filhote: puppy 0 → 1 em 0,18 s, earPerk 0, tilt 0,15, a lágrima treme 2 px a 12 fps e o rabo PARA (wagAmp 0); a quietude vende o pedido.",
+    "OLHAR DE CUMPLICIDADE (13,12): as cabeças sobem do cachorro para a outra criança em 4 quadros, o Léo 2 quadros antes da Bia. As sobrancelhas sobem juntas 0,4 e seguram 0,1 s: eles decidem juntos sem falar. Na risada, a Bia cobre a boca com a mão e o Léo joga a cabeça para trás, com os ombros quicando em fases diferentes para não parecerem gêmeos.",
+    "ARREMESSO E PEGADA: o Léo olha para a casquinha (13,60), o pulso vai para trás em 2 quadros e sai num estalo; o follow-through aponta para a frente e para baixo (armN [1.7,0.1]). Os olhos dele e os da Bia acompanham o arco. O Pipoca se agacha (sq +0,2), salta esticado (jumpU 0 → 0,5, lift 95 px) e abocanha no ápice com a boca 'bark'. Squash no pouso e as orelhas seguem por 4 quadros.",
+    "PISCADELA: dentro da íris, o Pipoca vira a cabeça para a câmera num único quadro (look [0,0]) e pisca (wink 1), com a casquinha na boca e blush. Segura 0,18 s antes de a íris fechar.",
+    "PISCADAS AUTOMÁTICAS (fora das ações): o Léo pisca em 0,9, 3,3 e 12,9; a Bia em 2,5, 5,2 e 10,1. Nunca piscar dentro de uma pausa marcada, a não ser quando a piscada é a própria piada (10,28/10,42 e 8,30)."
+  ],
+  "gags": [
+    "A BARRIGA RESPONDE POR ELE (a piada central): 'Tô bem!' alegre demais, a música CORTA SECO, 0,33 s de silêncio com o sorriso congelado e só as pupilas se mexendo, e o RONCO enche o silêncio. As pupilas escorregam para a barriga antes da cabeça, com punch-in de câmera. O ciclo é antecipação, pausa, estouro, reação e hold.",
+    "Nuvem de chuva pessoal: ela desce só em cima dele, uma gota faz 'plink' no nariz e ele pisca, resignado. No two-shot, a Bia está no sol a meio metro dele.",
+    "O livro que espia: os olhos e os óculos da Bia sobem por cima do livro antes de ele fechar num estalo.",
+    "A lâmpada da Bia é o brilho dos óculos: ela empurra os óculos, as lentes brilham com um 'ting' e vem o sorriso de canto.",
+    "Hammerspace: o sanduíche sai do nada, de trás das costas, com um 'pop' e pose de 'ta-dá'. O whip-tilt da câmera faz o próprio 'saque', e depois vem o estalo ('CRAC!').",
+    "Piscada dupla, depois estrelas: ele não acredita, aí as pupilas viram estrelas num quadro, a câmera dá um snap-zoom (a câmera faz o double-take) e a nuvem estoura em brilhos.",
+    "Física de desenho: o salto em arco até o banco, o banco rangendo e o braço de borracha pegando a metade.",
+    "Ritmo de fome: uma mordidinha delicada da Bia contra três ataques do Léo, que fica só com a casquinha antes de ela engolir a primeira.",
+    "Preparação e retorno das migalhas: as migalhas do estalo (9,25) ficam no chão e trazem o Pipoca, que entra de focinho, nhac-nhac-nhac, rimando com a mordida das crianças.",
+    "Olhos de filhote num CU segurado, onde nada se mexe além da lágrima. O corte seco para a risada é o maior contraste de volume do filme.",
+    "Arremate: a pegada no ar com 'Arf!' e freeze de impacto, e a piscadela para a plateia dentro da íris parada. A gentileza passou da Bia para o Léo e do Léo para o Pipoca."
+  ],
+  "sfx": [
+    {
+      "id": "amb_park",
+      "t": 0.0,
+      "what": "Ambiente de parque no fim da tarde (ElevenLabs SFX: 'gentle park ambience, distant birds, light breeze'), -26 dB durante o filme todo. Cai para -32 dB no silêncio 6,12–6,45 e no CU do cachorro 12,45–13,10."
+    },
+    {
+      "id": "steps",
+      "t": 0.35,
+      "what": "Passos leves de tênis na trilha, sincronizados com a caminhada (0,35, 0,58, 0,81, 1,04, 1,27, 1,50), com pan acompanhando da esquerda para o centro."
+    },
+    {
+      "id": "page_turn",
+      "t": 0.4,
+      "what": "Farfalhar suave de página."
+    },
+    {
+      "id": "skid",
+      "t": 1.55,
+      "what": "Chiado curto de tênis derrapando."
+    },
+    {
+      "id": "hair_pat",
+      "t": 1.72,
+      "what": "Dois 'pat pat' fofos, em 1,72 e 1,84."
+    },
+    {
+      "id": "book_twitch",
+      "t": 2.15,
+      "what": "Farfalhar mínimo do livro."
+    },
+    {
+      "id": "book_shut",
+      "t": 3.86,
+      "what": "'Thup' abafado de livro fechando."
+    },
+    {
+      "id": "music_stop",
+      "t": 6.12,
+      "what": "Corte seco da música, sem scratch; o silêncio é a piada."
+    },
+    {
+      "id": "tummy_growl",
+      "t": 6.45,
+      "what": "Ronco de barriga longo, borrachudo e cômico (0,55 s), subindo no fim como uma pergunta. Bem na frente do mix."
+    },
+    {
+      "id": "sweat_tink",
+      "t": 6.6,
+      "what": "'Tink' curtinho de gota de suor."
+    },
+    {
+      "id": "cloud_fwump",
+      "t": 7.95,
+      "what": "'Fwump' macio da nuvem assentando, junto com o wah-wah de trombone com surdina da música."
+    },
+    {
+      "id": "drizzle",
+      "t": 7.95,
+      "what": "Garoa pequena e próxima em loop, até 10,78."
+    },
+    {
+      "id": "plink",
+      "t": 8.3,
+      "what": "'Plink' de gota no nariz."
+    },
+    {
+      "id": "glint_ting",
+      "t": 8.82,
+      "what": "'Ting' de glockenspiel no brilho dos óculos."
+    },
+    {
+      "id": "whip",
+      "t": 8.98,
+      "what": "Whoosh rápido do whip-tilt."
+    },
+    {
+      "id": "hammer_pop",
+      "t": 9.08,
+      "what": "'Pop' de rolha, brilhante."
+    },
+    {
+      "id": "bread_crack",
+      "t": 9.25,
+      "what": "Pão rasgando com crocância ('CRAC!'), seguido de 3 'tic' de migalhas em 9,40, 9,47 e 9,55."
+    },
+    {
+      "id": "arm_stretch",
+      "t": 9.55,
+      "what": "'Boing-iiin' curto e baixo de braço de borracha."
+    },
+    {
+      "id": "blink_blink",
+      "t": 10.28,
+      "what": "Dois 'blik' secos de piscada de desenho (10,28 e 10,42)."
+    },
+    {
+      "id": "stars_ding",
+      "t": 10.68,
+      "what": "'Ding' brilhante com cascata de mark tree (estrelas)."
+    },
+    {
+      "id": "cloud_poof",
+      "t": 10.78,
+      "what": "'Puf' da nuvem sumindo; a garoa para."
+    },
+    {
+      "id": "hop_boing",
+      "t": 11.06,
+      "what": "'Boing' de mola no impulso."
+    },
+    {
+      "id": "bench_land",
+      "t": 11.25,
+      "what": "Baque na madeira com o rangido do banco."
+    },
+    {
+      "id": "sproing",
+      "t": 11.32,
+      "what": "Estica de borracha com 'pop' na pegada, e o 'thwip' do braço da Bia voltando às 11,38."
+    },
+    {
+      "id": "crunch_sync",
+      "t": 11.98,
+      "what": "UMA mordida crocante cheia (os dois juntos), levemente espalhada no estéreo."
+    },
+    {
+      "id": "dog_patter",
+      "t": 11.8,
+      "what": "Patinhas trotando e o tilintar da coleira, com pan da direita para o centro (11,80–12,36)."
+    },
+    {
+      "id": "dog_nom",
+      "t": 12.02,
+      "what": "Três 'nhac' pequenos de aspirar migalha (12,02, 12,14 e 12,24)."
+    },
+    {
+      "id": "leo_chomps",
+      "t": 12.12,
+      "what": "Duas mordidas extras do Léo (12,12 e 12,28), mais altas e gulosas."
+    },
+    {
+      "id": "dog_plop",
+      "t": 12.36,
+      "what": "'Plop' suave do cachorro sentando."
+    },
+    {
+      "id": "sniff",
+      "t": 12.5,
+      "what": "Duas fungadas de cachorro (12,50 e 12,60)."
+    },
+    {
+      "id": "puppy_shimmer",
+      "t": 12.65,
+      "what": "Brilho vítreo de caixinha de música quando os olhos crescem."
+    },
+    {
+      "id": "whimper",
+      "t": 12.75,
+      "what": "Gemidinho agudo de filhote, subindo (0,35 s)."
+    },
+    {
+      "id": "toss_whoosh",
+      "t": 13.72,
+      "what": "Whoosh leve com um 'fiu' girando (a casquinha)."
+    },
+    {
+      "id": "dog_jump",
+      "t": 13.88,
+      "what": "Pequeno arranhar de patas com um 'boing' leve."
+    },
+    {
+      "id": "arf",
+      "t": 14.0,
+      "what": "'Arf!': latido curto e agudo de cachorro pequeno, meio abafado pela casquinha, com estalo de mandíbula (SFX de cachorro, não TTS)."
+    },
+    {
+      "id": "paws_land",
+      "t": 14.14,
+      "what": "Pouso macio de patinhas e o 'fu-fu' do rabo abanando."
+    },
+    {
+      "id": "clap",
+      "t": 14.06,
+      "what": "Duas palminhas da Bia."
+    },
+    {
+      "id": "iris_swoosh",
+      "t": 14.25,
+      "what": "Swoosh descendente da íris fechando."
+    },
+    {
+      "id": "wink_ding",
+      "t": 14.46,
+      "what": "'Ding' de brilho na piscadela."
+    },
+    {
+      "id": "fim_stinger",
+      "t": 14.72,
+      "what": "Stinger de fim ('ta-dá' de ukulele e glockenspiel), soando até 15,0."
+    }
+  ],
+  "music": "Tema de desenho de sábado de manhã dos anos 90, ~108 BPM (batida de 0,556 s), em Dó maior: ukulele dedilhado, baixo em pizzicato, glockenspiel na melodia, escovinha leve e um assobio. No ElevenLabs Music, gerar uma faixa instrumental de 15 s com o prompt 'whimsical 90s Saturday-morning cartoon underscore, ukulele, glockenspiel, pizzicato strings, light whistling, playful, 108 bpm, C major, instrumental, no vocals'. Gerar também os blocos curtos 'sad muted trombone wah-wah + celesta, A minor, slow', 'sneaky pizzicato tiptoe', 'music box lullaby phrase, very soft' e 'ukulele glockenspiel ta-da stinger', e montar tudo no mix com crossfades curtos. Seções:\n- 0,00–6,12 'happy stroll': entra com a íris, -8 dB sob as falas. Afina um pouco sob o 'Tô bem!' a partir de 5,62.\n- 6,12 CORTE SECO: silêncio (só o ambiente) sob o sorriso congelado e o RONCO. É a pausa mais importante do filme.\n- 7,10–8,65 'sad': trombone com surdina e celesta descendo, com o wah-wah na nuvem assentando (7,95).\n- 8,82–10,55 'sneaky/idea': 'ting' no brilho e pizzicato na ponta dos pés subindo em suspense até a oferta.\n- 10,68 'triumph': glissando de glockenspiel sobre as estrelas até a banda cheia; 'bouncy' 11,10–12,40.\n- 12,45–13,10 'hush': a banda some e fica uma frase de caixinha de música / nota sustentada sob os olhos de filhote.\n- 13,26 'happy': a banda volta cheia junto com a risada, crescendo até a pegada (14,00) e caindo para o fundo sob a íris.\n- 14,72 stinger 'ta-dá' no 'Fim.', soando até 15,0.\nPontos de sincronia duros: o corte em 6,12, o glissando em 10,68 e o stinger em 14,72. Os outros cortes podem ficar perto de bordas de compasso.",
+  "rationale": "A espinha é o tratamento B (cinematografia): plano e contraplano num eixo único do banco, closes só nos picos emocionais e todos os números de câmera já testados contra os módulos reais. Sobre ela vieram os enxertos:\n- do A, o corte seco da música antes do ronco (o silêncio É a piada), o hammerspace, o nariz do cachorro chegando primeiro e a piscadela com a íris parada;\n- do C, os tiques de personagem (cabelo e óculos com brilho), a mordida sincronizada, a Bia corando, o contraste de uma mordida contra três e o rastro de migalhas que traz o Pipoca (preparação e retorno), mais a regra 'um atua, outro reage'.\n\nConflitos resolvidos:\n- 'Tô bem!' (C) em vez de 'Tô bem...': a mentira alegre demais cria um contraste maior com o ronco.\n- 'Quer metade?' em vez de 'Metade?': é mais natural na fala de uma criança brasileira.\n- 'Hm!' da Bia cortado: é arriscado em TTS, e o brilho nos óculos já faz o trabalho.\n- Risada dividida em L6 (Bia) e L7 (Léo), porque o pipeline só tem vozes 'leo' e 'bia'. O 'Arf!' vai como SFX.\n- O Léo come a metade em cena (e não fora de quadro, como no A), porque o contraste de mordidas é mais engraçado e motiva o arremesso.\n\nFalas em pt-BR TTS a ~12,3–13,6 c/s:\n| Fala | Início | Fim |\n|---|---|---|\n| L1 | 2,12 | 3,58 |\n| L2 | 3,92 | 5,45 |\n| L3a | 5,62 | 6,12 |\n| L3b | 7,12 | 8,55 |\n| L4 | 9,60 | 10,50 |\n| L5 | 11,40 | 11,95 |\n| L6/L7 | 13,26 | 13,78 |\nSão ~7,1 s de voz em 15 s. O resto é atuação, SFX e música, e cada fala tem espaço para uma reação.\n\nHolds previstos:\n- sorriso congelado: 0,33 s;\n- imagem triste com a nuvem: ~0,7 s;\n- migalhas depois do estalo: 0,3 s;\n- olhos de filhote: 0,27 s;\n- olhar de cumplicidade antes da risada: 0,1 s;\n- piscadela: 0,18 s.\n\nPlanos (12, em média 1,25 s): S1 0–2,05, S2 –3,60, S3 –5,55, S4 –8,65, S5 –9,55, S6 –10,55, S7 –11,10, S8 –12,45, S9 –13,10, S10 –13,60, S11 –14,25, S12 –15,00. A íris abre de 0 a 0,5 s; a íris de saída vai de 14,25 a 14,72 s e o 'Fim.' de 14,72 a 15,00. Total exato de 15,00 s.\n\nChecagem de enquadramento (largura visível = 1920/z):\n- Cada plano traz o retângulo visível anotado.\n- Âncoras medidas: cabeça do Léo em pé ≈ (775,512), topo do cabelo em 400; cabeça da Bia sentada ≈ (1226,522); cabeça do Pipoca sentado ≈ (1070,766); nuvem em (775,330).\n- Storyboard renderizado com os módulos reais em test/final_story.html + final_story.js (arg 0/1 = folhas 3x3, 10+i = quadro cheio, 100+i = crop 3x): test/final0.jpg, test/final1.jpg, test/final_s11.jpg, test/final_z7.jpg e test/final_z13.jpg.\n\nEssa passada corrigiu quatro coisas:\n1. O aceno com o braço da frente cobria o rosto; passou para armF.\n2. O joinha na altura do queixo parecia 'pensativo'; desceu para armN [1.25,1.05].\n3. O two-shot da oferta estava apertado demais à esquerda; foi para {1030,520,1.9}.\n4. A pegada no ar com lift 170 jogava o cachorro no rosto das crianças e o 'Arf!' tapava a Bia; agora é lift 95 em x 1100, com a explosão em cabeça+(120,-30), escala 0,55, e câmera {1070,640,1.55}.\n\nO crop 3x confirmou que os olhos de estrela e os olhos de filhote seguram detalhe em z ≥ 3."
+}

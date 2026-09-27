@@ -17,7 +17,13 @@
    "eleven_v3"
   ],
   "seed": 4242,
-  "apply_text_normalization": "auto"
+  "apply_text_normalization": "auto",
+  "context": true,
+  "_context_note": "previous_text/next_text = neighbouring lines in film order (script.json). multilingual_v2 takes no language_code, so the context is what keeps short lines ('Valeu!!') in Portuguese. Models listed in context_unsupported_models get no context; any 400/422 is retried once without the optional hints.",
+  "context_unsupported_models": [],
+  "short_line_model": null,
+  "short_line_chars": 10,
+  "_short_line_note": "Optional: e.g. 'eleven_turbo_v2_5' (takes language_code 'pt') for lines shorter than short_line_chars. Off until tried once with a real key."
  },
  "voices": {
   "leo": {
@@ -42,7 +48,8 @@
    },
    "pitch_factor": 1.05,
    "pan": -0.25,
-   "gain": 1.0
+   "gain": 1.0,
+   "formant": "shifted"
   },
   "bia": {
    "desc": "young warm female kid voice, friendly",
@@ -66,7 +73,8 @@
    },
    "pitch_factor": 1.04,
    "pan": 0.25,
-   "gain": 1.0
+   "gain": 1.0,
+   "formant": "shifted"
   }
  },
  "known_voice_ids": {
@@ -84,38 +92,56 @@
   "Matilda": "XrExE9yKIg1WjnnlVkGX",
   "Alice": "Xb7hH8MSUJpSbSDYk0k2"
  },
+ "_lines_note": "Per-line overrides keyed by id. eleven.py reads the dialogue TEXT from script.json (the file plan.py times); these texts are only the fallback when script.json is missing.",
  "lines": [
   {
    "id": "l1",
    "who": "leo",
-   "text": "Oi, Bia!\nTudo bem?",
+   "text": "Oi, Bia! Tudo bem?",
    "mood": "happy"
   },
   {
    "id": "l2",
    "who": "bia",
-   "text": "Tudo ótimo!\nE você?",
+   "text": "Tudo ótimo! E você?",
    "mood": "happy"
   },
   {
    "id": "l3",
    "who": "leo",
-   "text": "Tô bem... mas\nesqueci meu lanche.",
-   "mood": "sad",
+   "text": "Tô bem!",
+   "mood": "happy",
+   "_note": "forced, too-bright cheer before the tummy growl",
    "voice_settings": {
-    "stability": 0.55,
-    "style": 0.3,
-    "speed": 0.94
+    "stability": 0.35,
+    "style": 0.55,
+    "speed": 1.06
    }
   },
   {
    "id": "l4",
-   "who": "bia",
-   "text": "Metade?",
-   "mood": "kind"
+   "who": "leo",
+   "text": "...mas esqueci meu lanche.",
+   "mood": "sad",
+   "voice_settings": {
+    "stability": 0.55,
+    "style": 0.3,
+    "speed": 0.92
+   }
   },
   {
    "id": "l5",
+   "who": "bia",
+   "text": "Quer metade?",
+   "mood": "kind",
+   "voice_settings": {
+    "stability": 0.45,
+    "style": 0.45,
+    "speed": 1.0
+   }
+  },
+  {
+   "id": "l6",
    "who": "leo",
    "text": "Valeu!!",
    "mood": "excited",
@@ -129,7 +155,8 @@
  "sfx_defaults": {
   "model_id": "eleven_text_to_sound_v2",
   "prompt_influence": 0.55,
-  "suffix": ", cartoon sound effect, clean, no music, no voice"
+  "suffix": ", cartoon sound effect, clean, no music, no speech, no words",
+  "_suffix_note": "A cue may set its own 'suffix'; vocal cues (giggle, bark, whimper, sniff, tummy_growl, catch_chomp) drop the 'no speech' part so the model is not told to avoid what it is asked for."
  },
  "sfx": {
   "iris_whistle_up": {
@@ -166,7 +193,8 @@
   "tummy_growl": {
    "prompt": "comical long hungry stomach growl rumble, cartoon",
    "dur": 1.0,
-   "level": 0.5
+   "level": 0.5,
+   "suffix": ", cartoon sound effect, clean, no music"
   },
   "cloud_poof": {
    "prompt": "soft cartoon puff of smoke appearing, airy poof",
@@ -228,17 +256,20 @@
   "sniff": {
    "prompt": "small puppy sniffing twice, quick nose sniffs",
    "dur": 0.5,
-   "level": 0.18
+   "level": 0.18,
+   "suffix": ", cartoon sound effect, clean, no music"
   },
   "whimper": {
    "prompt": "cute puppy pleading whimper, soft high whine, cartoon",
    "dur": 0.8,
-   "level": 0.16
+   "level": 0.16,
+   "suffix": ", cartoon sound effect, clean, no music"
   },
   "giggle": {
    "prompt": "two young children giggling together briefly, cheerful",
    "dur": 0.8,
-   "level": 0.45
+   "level": 0.45,
+   "suffix": ", cartoon sound effect, clean, no music"
   },
   "toss_whoosh": {
    "prompt": "small object tossed through the air, short airy whoosh",
@@ -248,12 +279,14 @@
   "catch_chomp": {
    "prompt": "small dog snapping jaws to catch a treat mid-air, quick chomp",
    "dur": 0.5,
-   "level": 0.4
+   "level": 0.4,
+   "suffix": ", cartoon sound effect, clean, no music"
   },
   "bark": {
    "prompt": "one short happy small puppy bark 'arf'",
    "dur": 0.5,
-   "level": 0.9
+   "level": 0.9,
+   "suffix": ", cartoon sound effect, clean, no music"
   },
   "slide_whistle_down": {
    "prompt": "slide whistle falling downward, cartoon iris-out ending",
@@ -274,7 +307,7 @@
  "music": {
   "model_id": "music_v1",
   "_model_note": "music_v1 takes composition_plan {positive/negative_global_styles, sections[{section_name, positive/negative_local_styles, duration_ms 3000..120000, lines}]}; music_v2/_v2_5 take {chunks:[{text, duration_ms, positive_styles, negative_styles}]}. The Music API is for paid subscribers: on 401/402/403 eleven.py logs and mix.py uses the synth ukulele score.",
-  "prompt": "Gentle instrumental kids' TV cartoon underscore, 90s Saturday-morning style, 100 BPM in C major: bouncy strummed ukulele, soft xylophone melody, light shaker and pizzicato upright bass. Starts happy and sunny, turns briefly sad and melancholy in A minor (slow ukulele arpeggios, lonely glockenspiel), then bursts back to happy, and ends with a short bright ukulele 'ta-da' button chord.",
+  "prompt": "Gentle instrumental kids' TV cartoon underscore, 90s Saturday-morning style, 100 BPM in C major: bouncy strummed ukulele, soft xylophone melody, light shaker and pizzicato upright bass. Starts happy and sunny, turns briefly sad and melancholy in A minor (slow ukulele arpeggios, lonely glockenspiel), then bursts back to happy, and ends gently on a soft sustained ukulele chord that decays away (no final hit).",
   "global_positive": [
    "kids cartoon underscore",
    "ukulele",
@@ -341,13 +374,17 @@
     ]
    },
    "end": {
-    "name": "Button",
+    "name": "Gentle Ending",
     "pos": [
-     "short bright ukulele ta-da button chord then silence"
+     "gentle ending",
+     "soft sustained final ukulele chord",
+     "natural decay"
     ],
     "neg": [
-     "long outro",
-     "fade out"
+     "ta-da",
+     "stinger",
+     "drum hit",
+     "long outro"
     ]
    }
   },
@@ -375,14 +412,22 @@
    "depth_db": 9,
    "attack_s": 0.06,
    "release_s": 0.35
-  }
+  },
+  "_end_note": "The fim_chord SFX is the film's only 'ta-da'. The score is asked for a soft final chord that has decayed before the stinger, and mix.py fades an ElevenLabs score out from stinger-0.05 s over 0.3 s."
  },
  "mix": {
   "sr": 48000,
   "voice_rms_dbfs": -17,
   "sfx_bus_db": -3,
   "babble_gain": 0.8,
-  "peak_dbfs": -1.0,
-  "room_send": 0.08
+  "room_send": 0.08,
+  "loudness_lufs": -14.0,
+  "true_peak_dbtp": -1.5,
+  "_master_note": "master: HPF/LPF, capped tanh saturation, integrated loudness to loudness_lufs (BS.1770-4), look-ahead true-peak limiter (4x oversampled, 5 ms look-ahead, 50 ms release) at true_peak_dbtp; leaves headroom for the AAC encode.",
+  "voice_unit": "character",
+  "_voice_unit_note": "'character': if any line of a character lacks a decodable take from one engine+voice, all of that character's lines babble. 'all': the whole cast babbles.",
+  "pitch_engine": "rubberband",
+  "_pitch_note": "rubberband (high-quality phase vocoder, duration exact) with voices.<who>.formant 'shifted' (formants rise with the pitch: younger timbre) or 'preserved'; falls back to asetrate+atempo if ffmpeg lacks rubberband.",
+  "fade_out_s": 0.35
  }
 }

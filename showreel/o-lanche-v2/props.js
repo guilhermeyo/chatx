@@ -8,14 +8,22 @@
 //   lunchbox(x,y,s)                          red lunchbox with handle
 //   crumbs(x,y,t0,t,seed)                    crumbs spray from (x,y) starting at t0 (ballistic, ~0.7 s)
 //   rainCloud(x,y,s,t)                       grumpy little rain cloud + falling drops (drops fall ~130*s below)
-//   poof(x,y,s,u)                            smoke puff, u 0..1 (nothing drawn outside 0<u<1)
-//   sparkleBurst(x,y,u,n=8,R=130,color)      ring of 4-point stars flying out, u 0..1
+//   poof(x,y,s,u)                            smoke puff, u 0..1 (nothing drawn outside 0<u<1; fades out over u .65–1)
+//   sparkleBurst(x,y,u,n=8,R=130,color)      ring of 4-point stars popping and flying out, u 0..1
 //   hearts(x,y,u)                            three hearts popping and floating up, u 0..1
 //   burst(x,y,s,label)                       comic starburst ("Arf!")
-//   speechBubble(spec) → {x0,y0,w,h}         spec = {x, y, w?, text | lines, visibleChars?, tail:[x,y], scale?,
+//   speechBubble(spec) → {x0,y0,w,h,outer}   spec = {x, y, w?, text | lines, visibleChars?, tail:[x,y], scale?,
 //                                               px? (font, 54), style? 'talk'|'shout', align? 'left'|'center'}
 //                                            (x,y) = bubble centre; scale pops about the tail tip.
+//                                            {x0,y0,w,h} = the TEXT box.  outer = {x0,y0,w,h} = everything that is
+//                                            inked (balloon bulges / shout spikes + tail + line width) — use `outer`
+//                                            to keep a bubble on screen.  Both are at scale 1 (the settled size).
 //   motionLines(pts,u)                       speed lines trailing a path pts (oldest → newest), u = strength 0..1
+//
+// Line boil: core keys each shape's jitter on a per-frame call counter, so every public function here
+// consumes a FIXED number of T.J calls whatever its state/progress (padded at the end, see `budget`).
+// That way a prop changing state (poof ending, a bite appearing, a bubble popping in) never re-jitters
+// the lines of whatever is drawn after it in the same frame.
 'use strict';
 (function () {
   const T = window.TOON, C = T.C, INK = C.INK, TAU = T.TAU;
@@ -24,7 +32,9 @@
   // ── local palette ──
   const K = {
     crumb: '#F7E1A6', crumbShade: '#EACB85', crust: '#D39149', crustShade: '#B8763A', crustHi: '#E6AD68',
-    lettuce: '#7CC35A', lettuceShade: '#5EA546', tomato: '#E6533C', tomatoShade: '#C23F2E', cheese: '#FFD04A', cheeseShade: '#EDB42E',
+    lettuce: '#7CC35A', lettuceShade: '#5EA546', lettuceHi: '#A6DB7E', lettuceLine: '#3E7A34',
+    tomato: '#E6533C', tomatoShade: '#C23F2E', tomatoHi: '#F4876E', tomatoSeed: '#FBD3A0',
+    cheese: '#FFD04A', cheeseShade: '#EDB42E', cheeseHi: '#FFE796',
     cover: '#D9453B', coverShade: '#B3352D', coverHi: '#EC6A5C', page: C.PAPER, pageEdge: '#E9DFC9', textLine: '#BDB3A6',
     box: '#E85D3F', boxShade: '#C4452C', boxHi: '#F58A6C', latch: '#FFD23F',
     cloud: '#A9B2C6', cloudShade: '#8C96AE', cloudHi: '#C9D0DE', drop: '#6FA0E6', dropHi: '#CFE2FF',
@@ -37,6 +47,12 @@
   function begin(x, y, s = 1, rot = 0) { const g = c(); g.save(); g.translate(x, y); if (rot) g.rotate(rot); if (s !== 1) g.scale(s, s); return g; }
   // clip to a polygon and run fn (for in-shape shading)
   function clipped(pts, fn) { const g = c(); g.save(); T.path(pts); g.clip(); fn(); g.restore(); }
+  // clip to the union of several polygons
+  function clippedAll(list, fn) {
+    const g = c(); g.save(); g.beginPath();
+    list.forEach(p => { p.forEach(([px, py], k) => k ? g.lineTo(px, py) : g.moveTo(px, py)); g.closePath(); });
+    g.clip(); fn(); g.restore();
+  }
   // insert points so no edge is longer than `step` (lets bites/wobbles act smoothly)
   function resample(pts, step = 5, closed = true) {
     const out = [], n = pts.length;
@@ -47,48 +63,84 @@
     if (!closed) out.push(pts[n - 1]);
     return out;
   }
-  // rounded polygon: resample then corner-cut
-  const round = (pts, step = 6, it = 2) => T.chaikin(resample(pts, step), it);
-  // bite: points inside a bite circle [cx,cy,r] slide toward the shape centre (ox,oy) until they exit it
-  function biteOut(pts, bites, dr = 0, ox = 0, oy = 4) {
-    return pts.map(p => {
-      let [x, y] = p;
-      for (let pass = 0; pass < 2; pass++) for (const [bx, by, r0] of bites) {
-        const r = r0 + dr, fx = x - bx, fy = y - by;
-        if (fx * fx + fy * fy >= r * r) continue;
-        let dx = ox - x, dy = oy - y; const dl = Math.hypot(dx, dy) || 1; dx /= dl; dy /= dl;
-        const b = fx * dx + fy * dy, t = -b + Math.sqrt(Math.max(0, b * b - (fx * fx + fy * fy - r * r)));
-        x += dx * t; y += dy * t;
-      }
-      return [x, y];
-    });
+  // point-in-polygon (even-odd)
+  function inPoly(x, y, pts) {
+    let ins = false;
+    for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+      const [xi, yi] = pts[i], [xj, yj] = pts[j];
+      if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) ins = !ins;
+    }
+    return ins;
   }
   // scale a polygon about a point
   const scaleAbout = (pts, k, cx = 0, cy = 0, ky = k) => pts.map(([x, y]) => [cx + (x - cx) * k, cy + (y - cy) * ky]);
   const shift = (pts, dx, dy) => pts.map(([x, y]) => [x + dx, y + dy]);
-  // union of several shapes with ONE merged outline: ink all (double width) then fill all
+  // union of several shapes with ONE merged outline: ink all (double width) then fill all.
+  // `fill` is one colour or an array (one per shape, drawn in order).
   function union(list, fill, lw = 4.5, jit = T.JA) {
     const J = list.map(p => T.J(p, jit));
-    J.forEach(p => T.ink(p, lw * 2));
-    J.forEach(p => T.fillPts(p, fill));
+    if (lw > 0) J.forEach(p => T.ink(p, lw * 2));
+    J.forEach((p, i) => T.fillPts(p, Array.isArray(fill) ? fill[i] : fill));
     return J;
   }
-  const dot = (x, y, r, col) => { const g = c(); g.fillStyle = col; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill(); };
-  const oval = (x, y, rx, ry, col, rot = 0) => { const g = c(); g.fillStyle = col; g.beginPath(); g.ellipse(x, y, rx, ry, rot, 0, TAU); g.fill(); };
+  const dot = (x, y, r, col) => { const g = c(); g.fillStyle = col; g.beginPath(); g.arc(x, y, Math.max(0.01, r), 0, TAU); g.fill(); };
+  const oval = (x, y, rx, ry, col, rot = 0) => { const g = c(); g.fillStyle = col; g.beginPath(); g.ellipse(x, y, Math.max(0.01, rx), Math.max(0.01, ry), rot, 0, TAU); g.fill(); };
   const star5 = (x, y, r0, r1) => Array.from({ length: 10 }, (_, i) => { const a = -Math.PI / 2 + i / 10 * TAU, r = i % 2 ? r1 : r0; return [x + Math.cos(a) * r, y + Math.sin(a) * r]; });
 
-  // ─────────────────────────── sandwich ───────────────────────────
-  // coarse polygon → boil-jitter → corner-rounded (smooth brush edge, never hairy)
-  const soft = (pts, amp = 1, rad = 7) => T.chaikin(T.J(resample(pts, rad * 2), amp), 2);
-  // lettuce ruffle: offset a (dense) outline outward in little scallops of `period` px
-  function ruffle(pts, amp, period, cx = 0, cy = 0, phase = 0) {
-    let s = phase;
-    return pts.map(([x, y], i) => {
-      if (i) s += Math.hypot(x - pts[i - 1][0], y - pts[i - 1][1]);
-      const dx = x - cx, dy = y - cy, d = Math.hypot(dx, dy) || 1, w = amp * (0.25 + 0.75 * Math.abs(Math.sin(Math.PI * s / period)));
-      return [x + dx / d * w, y + dy / d * w];
-    });
+  // ── fixed jitter budget (see header) ──
+  // Wraps a prop so it always consumes exactly N T.J calls (N may depend on the args).  Nested budgets
+  // work: an inner prop's calls (and its padding) count toward the outer one.
+  const PAD = [[0, 0]], over = {};
+  P._jmax = {};                                                      // max calls seen per prop (for tests)
+  function budget(name, N, fn) {
+    return (...args) => {
+      const J0 = T.J; let k = 0;
+      T.J = (pts, amp) => { k++; return J0(pts, amp); };
+      try { return fn(...args); }
+      finally {
+        T.J = J0;
+        const n = typeof N === 'function' ? N(...args) : N;
+        P._jmax[name] = Math.max(P._jmax[name] || 0, k);
+        if (k > n && !over[name]) { over[name] = 1; console.warn(`props.${name}: ${k} T.J calls > budget ${n}`); }
+        for (; k < n; k++) J0(PAD);
+      }
+    };
   }
+
+  // ── group fade ──
+  // Draw fn at full opacity into a scratch buffer (only the device-space bounds of the local box
+  // [x0,y0,x1,y1]), then composite it at `alpha`.  Overlapping fills/inks inside the group then fade
+  // as one cel instead of showing through each other.
+  let FADE = null;
+  function faded(alpha, box, fn) {
+    if (alpha >= 0.995) { fn(); return; }
+    if (alpha <= 0.004 || typeof document === 'undefined') return;
+    const g = c(), m = g.getTransform(), W = g.canvas.width, H = g.canvas.height;
+    const xs = [], ys = [];
+    [[box[0], box[1]], [box[2], box[1]], [box[2], box[3]], [box[0], box[3]]].forEach(([x, y]) => { xs.push(m.a * x + m.c * y + m.e); ys.push(m.b * x + m.d * y + m.f); });
+    const x0 = Math.max(0, Math.floor(Math.min(...xs))), y0 = Math.max(0, Math.floor(Math.min(...ys)));
+    const x1 = Math.min(W, Math.ceil(Math.max(...xs))), y1 = Math.min(H, Math.ceil(Math.max(...ys)));
+    if (x1 <= x0 || y1 <= y0) return;
+    const w = x1 - x0, h = y1 - y0;
+    // one scratch buffer the size of the target canvas, allocated once: every call renders identically
+    if (!FADE || FADE.width < W || FADE.height < H) { FADE = document.createElement('canvas'); FADE.width = W; FADE.height = H; }
+    const b = FADE, bg = b.getContext('2d');
+    bg.setTransform(1, 0, 0, 1, 0, 0); bg.clearRect(0, 0, w, h);
+    bg.setTransform(m.a, m.b, m.c, m.d, m.e - x0, m.f - y0);
+    T.ctx = bg;
+    try { fn(); } finally { T.ctx = g; bg.setTransform(1, 0, 0, 1, 0, 0); }
+    g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha *= alpha; g.drawImage(b, 0, 0, w, h, x0, y0, w, h); g.restore();
+  }
+
+  // ─────────────────────────── sandwich ───────────────────────────
+  // Built back → front so that every edge carries at most ONE dark line, even at 6x:
+  //   1. silhouette  — back slice + tomato bumps under one merged INK outline (union)
+  //   2. lettuce     — a thin wavy strip along the bottom edge, lined in dark green (never INK)
+  //   3. cheese      — a smooth corner + teardrop drip tucked under the bread's lower-right corner
+  //   4. bread face  — crust band + crumb, inked
+  // The back slice is offset straight down, so its side edges hide behind the bread and only its bottom
+  // crust shows (well clear of the bread's bottom line).
+  const soft = (pts, amp = 1, rad = 7) => T.chaikin(T.J(resample(pts, rad * 2), amp), 2);
   // bread slice face: crust band + crumb interior with pores, soft shade lower-right, highlight upper-left
   function breadFace(O, I, pores, inside) {
     T.fillPts(O, K.crust);
@@ -102,67 +154,165 @@
       pores.forEach(([x, y, r]) => oval(x, y, r, r * 0.7, K.crumbShade, 0.4));
       if (inside) inside();
     });
+    // a thin round-joined core line first: fills the tiny gaps the brush ribbon leaves at very sharp
+    // corners (the horns of a bite), then the brush line on top
+    const g = c(); T.path(O); g.lineJoin = 'round'; g.lineWidth = 2.6; g.strokeStyle = INK; g.stroke();
     T.ink(O, 4.2);
     return O;
   }
-  // fillings band behind the bread: ruffled lettuce with its own shading
-  function lettuce(base, amp, period) {
-    const L = ruffle(T.chaikin(resample(base, 4), 1), amp, period);
+  // silhouette layer: back slice (its crust edge shows below the bread) + tomato slices, ONE outline.
+  // tomatoes = [x, y, rx, ry]: flat slices lying between the slices; the part that pokes outside the
+  // back slice gets the silhouette ink, the part inside just meets the crust colour (no extra line).
+  function backLayer(B, tomatoes) {
+    // B arrives already boiled (soft) — only the tomatoes get their own jitter, so a densely sampled
+    // (bitten) back slice never turns jaggy
+    const J = union([B, ...tomatoes.map(([x, y, rx, ry]) => T.J(T.ell(x, y, rx, ry, 20), 0.5))], [K.crust, ...tomatoes.map(() => K.tomato)], 2.1, 0);
+    clipped(J[0], () => { T.fillPts(shift(J[0], 0, -3.5), K.crustShade); T.fillPts(shift(J[0], 0, -6), K.crust); });   // darker underside
+    tomatoes.forEach(([x, y, rx, ry], i) => clipped(J[i + 1], () => {
+      oval(x + rx * 0.1, y + ry * 0.55, rx * 1.05, ry * 0.6, K.tomatoShade);     // shade along the lower rim
+      oval(x - rx * 0.3, y - ry * 0.05, rx * 0.35, ry * 0.28, K.tomatoHi);       // wet highlight
+    }));
+  }
+  // lettuce strip: top edge y0 (hidden under the bread) spanning [xa..xb]; its lower edge is a row of
+  // soft scallops hanging to y1; both ends curl up to yEnd (little leaf ears beside the bread corners)
+  function lettuceStrip(xa, xb, y0, y1, yEnd, period) {
+    const n = Math.max(3, Math.round((xb - xa) / period)), bot = [];
+    for (let i = 0; i <= n * 4; i++) {
+      const u = i / (n * 4), x = T.lerp(xa, xb, u), ph = (u * n) % 1;
+      const edge = Math.min(1, Math.min(u, 1 - u) * n * 1.3);             // taper the scallops toward the ends
+      bot.push([x, T.lerp(y1 - 3.2, y1, Math.sin(Math.PI * ph)) * edge + (y1 - 2) * (1 - edge)]);
+    }
+    const pts = [[xa + 4, y0], [xb - 4, y0], [xb + 1.5, yEnd], ...bot.reverse(), [xa - 1.5, yEnd]];
+    const L = T.chaikin(T.J(pts, 0.5), 1);
     T.fillPts(L, K.lettuce);
-    clipped(L, () => { T.fillPts(shift(L, 2.5, 4), K.lettuceShade); });
-    T.ink(L, 3.4);
+    clipped(L, () => {
+      T.fillPts(shift(L, 0, -2.4), K.lettuceShade); T.fillPts(shift(L, 0, -4.2), K.lettuce);   // shade along the ruffle
+      for (let i = 1; i < n; i++) { const x = T.lerp(xa, xb, i / n); T.stroke([[x, y0 + 3], [x - 0.8, y1 - 2.5]], 1.2, K.lettuceHi, 0.7, 0.3); }   // ribs
+    });
+    T.ink(L, 2, K.lettuceLine);
     return L;
   }
-  const HALF_TRI = [[0, -34], [39, 22], [-39, 22]];
+  // cheese: the corner of a slice poking out from under the bread corner (cx,cy), drooping, with one
+  // smooth teardrop drip (≤ 12 px) hanging from its underside.  dir = +1 corner on the right.
+  function cheese(cx, cy, drop = 11, dir = 1) {
+    const d = dir, bx = cx - d * 1;                                       // drip centre-x (under the corner)
+    const bulb = T.arcPts(bx, cy + drop - 3.2, 3.3, 3.4, d > 0 ? 0 : Math.PI, d > 0 ? Math.PI : 0, 6);   // round drip end
+    const pts = [[cx - d * 20, cy - 7], [cx - d * 2, cy - 7], [cx + d * 7, cy - 2], [cx + d * 8.5, cy + 2.5], [cx + d * 5, cy + 5],
+      [bx + d * 2.2, cy + 6], [bx + d * 2, cy + drop * 0.6], ...bulb, [bx - d * 2, cy + drop * 0.55], [bx - d * 3.4, cy + 5.5], [cx - d * 7, cy + 3], [cx - d * 12, cy - 2], [cx - d * 20, cy - 3]];
+    const Q = T.chaikin(T.J(pts, 0.35), 2);
+    T.fillPts(Q, K.cheese);
+    clipped(Q, () => {
+      T.fillPts(shift(Q, d * 1.2, 2.4), K.cheeseShade); T.fillPts(shift(Q, -d * 0.6, -1.2), K.cheese);
+      oval(bx - d * 0.9, cy + drop - 4.2, 1.1, 1.8, K.cheeseHi);        // glint on the drip
+    });
+    T.ink(Q, 2.4);
+    return Q;
+  }
 
-  P.sandwichWhole = (x, y, s = 1, rot = 0) => {
+  // triangle half (point up) and its crumb interior
+  const HALF_TRI = [[0, -34], [39, 22], [-39, 22]], HALF_IN = [[0, -21], [27, 15], [-27, 15]];
+  // bite (state 1): a mouth-sized scoop taking the apex off at a slight diagonal, whose rim is three
+  // tooth scallops (small circles along the mouth's lower rim) with sharp cusps between them.
+  const BITE_MOUTH = [4, -22, 15.5];
+  const BITE_TEETH = [146, 102, 58].map(deg => { const a = deg * Math.PI / 180; return [4 + Math.cos(a) * 15, -22 + Math.sin(a) * 15, 6]; });
+  const BITES = [BITE_MOUTH, ...BITE_TEETH];
+  // The bite region (mouth ∪ teeth, every radius grown by dr) is star-shaped about the mouth centre, so
+  // its boundary is a polar curve ρ(θ): a (slightly soft) max of the mouth radius and each tooth's far
+  // ray intersection — the soft max rounds the cusps just enough for the brush line to stay clean.
+  function biteRho(th, dr) {
+    const [mx, my, mr] = BITE_MOUTH, dx = Math.cos(th), dy = Math.sin(th), k = 0.9;
+    let acc = Math.exp((mr + dr) / k), top = mr + dr;
+    for (const [tx, ty, tr] of BITE_TEETH) {
+      const fx = tx - mx, fy = ty - my, b = fx * dx + fy * dy, R = tr + dr, disc = b * b - (fx * fx + fy * fy - R * R);
+      if (disc > 0) { const r = b + Math.sqrt(disc); acc += Math.exp(r / k); top = Math.max(top, r); }
+    }
+    return Math.max(top, k * Math.log(acc) - 0.4);
+  }
+  // Cut the bite out of a closed outline: every run of outline points inside the bite is replaced by
+  // the densely sampled bite curve between the run's entry and exit angles — taken the way round that
+  // lies inside the shape — so the scallops are true round arcs with crisp cusps.  dr > 0 bites deeper
+  // (layers behind the bread then sit recessed inside the bite).
+  function bite(pts, dr = 0) {
+    const Pp = resample(pts, 3), n = Pp.length, [mx, my] = BITE_MOUTH;
+    const pol = Pp.map(([x, y]) => [Math.atan2(y - my, x - mx), Math.hypot(x - mx, y - my)]);
+    const inside = pol.map(([th, r]) => r < biteRho(th, dr));
+    const s0 = inside.indexOf(false); if (s0 < 0) return Pp;
+    const at = i => (s0 + i + n) % n, wrap = d => d > Math.PI ? d - TAU : d < -Math.PI ? d + TAU : d;
+    const curve = (thA, sw) => { const m = Math.max(2, Math.ceil(Math.abs(sw) * (BITE_MOUTH[2] + 4) / 2.6)); return Array.from({ length: m + 1 }, (_, q) => { const th = thA + sw * q / m, r = biteRho(th, dr); return [mx + Math.cos(th) * r, my + Math.sin(th) * r]; }); };
+    const out = [];
+    for (let i = 0; i < n;) {
+      if (!inside[at(i)]) { out.push(Pp[at(i)]); i++; continue; }
+      let j = i; while (j < n && inside[at(j)]) j++;
+      let S = 0; for (let q = i - 1; q < j; q++) S += wrap(pol[at(q + 1)][0] - pol[at(q)][0]);
+      const thA = pol[at(i - 1)][0];
+      // the bite curve joins entry→exit either the same way round as the eaten run or the other way:
+      // keep the one whose middle lies inside the original shape
+      const alt = S - Math.sign(S) * TAU, cS = curve(thA, S), midS = cS[cS.length >> 1];
+      out.push(...curve(thA, inPoly(midS[0], midS[1], Pp) ? S : alt));
+      i = j;
+    }
+    return T.chaikin(out, 1);                                            // soften the horns a touch
+  }
+
+  P.sandwichWhole = budget('sandwichWhole', 18, (x, y, s = 1, rot = 0) => {
     begin(x, y, s, rot);
     const sq = [[-38, -34], [38, -34], [38, 34], [-38, 34]];
-    T.shape(soft(shift(sq, 2, 8), 1, 9), K.crustShade, 2.6, { jitter: 0 });               // back slice
-    T.blob(-28, 33, 18, 9, K.tomato, 3.6, 18, 0.15);                                    // tomato slices peeking
-    T.blob(37, -22, 9, 15, K.tomato, 3.6, 16, 0.1);
-    lettuce(T.J(scaleAbout(sq, 1.05, 0, 3), 1), 4.5, 10);
-    T.shape([[16, 32], [46, 36], [40, 44], [37, 53], [31, 45], [21, 41]], K.cheese, 3.6, { jitter: 0.7 });  // cheese corner + drip
+    backLayer(soft(scaleAbout(shift(sq, 0, 12), 0.96, 0, 46, 1), 0.6, 9), [[-33, 40.5, 10, 5.5], [8, 42, 13, 4.6]]);
+    lettuceStrip(-40, 40, 26, 40, 30, 11);
+    cheese(37, 34, 12, 1);
     breadFace(soft(sq, 1, 9), soft(scaleAbout(sq, 0.8), 0.8, 7), [[-14, -12, 2.2], [10, -16, 1.6], [-4, 8, 2], [16, 12, 1.8], [-20, 14, 1.5]]);
     // the pre-cut diagonal (where Bia snaps it)
     T.stroke([[-30, 28], [0, 0], [30, -28]], 3.2, K.crumbShade, 0.4, 0.8);
     T.stroke([[-22, 22], [20, -18]], 2, T.rgba(C.PAPER, 0.8), 0.9, 0.6);
     c().restore();
-  };
+  });
 
-  // bite circles on the apex of a half (state 1): one big concave bite with tooth scallops
-  const BITES = [[-15, -21, 12], [1, -28, 15], [17, -18, 11.5]];
-
-  P.sandwichHalf = (x, y, s = 1, rot = 0, state = 0) => {
+  P.sandwichHalf = budget('sandwichHalf', 16, (x, y, s = 1, rot = 0, state = 0) => {
     begin(x, y, s, rot);
     if (state >= 2) { crust(); c().restore(); return; }
-    const bites = state === 1 ? BITES : [];
-    const fix = (pts, dr = 0) => bites.length ? biteOut(resample(pts, 3), bites, dr) : pts;
-    T.shape(fix(soft(shift(HALF_TRI, 2, 8), 1, 6)), K.crustShade, 2.4, { jitter: 0 });   // back slice
-    T.blob(-22, 26, 17, 7.5, K.tomato, 3.4, 18, -0.08);                                // tomato peeking lower-left
-    lettuce(fix(T.J(scaleAbout(HALF_TRI, 1.07, 0, 5), 1), -3.5), 4, 9);
-    T.shape([[12, 22], [45, 22], [39, 31], [36, 41], [29, 32], [18, 30]], K.cheese, 3.4, { jitter: 0.7 });
-    const O = fix(soft(HALF_TRI, 1, 6)), I = fix(soft([[0, -21], [27, 15], [-27, 15]], 0.7, 5));
-    // bitten: the bite edge shows soft crumb (no crust) with a torn, shaded lip
+    const bitten = state === 1;
+    // bites: dr > 0 carves layers behind the bread deeper, so they sit recessed inside the bite
+    const fix = (pts, dr = 0) => bitten ? bite(pts, dr) : pts;
+    backLayer(fix(soft(shift(HALF_TRI, 0, 12), 0.6, 6), 2.5), [[-30, 28.5, 9, 5.2], [8, 30, 11, 4.4]]);
+    lettuceStrip(-34, 34, 15, 28, 18, 10);
+    cheese(37, 22, 11, 1);
+    const O = fix(soft(HALF_TRI, 1, 6)), I = fix(soft(HALF_IN, 0.7, 5));
+    // bitten: the bite edge is soft crumb all round (no crust band) with a shaded, torn lip
     const biteEdge = () => {
-      BITES.forEach(([bx, by, r]) => { const g = c(); g.fillStyle = K.crumb; g.beginPath(); g.arc(bx, by, r + 6, 0, TAU); g.fill(); });
-      BITES.forEach(([bx, by, r]) => { const g = c(); g.strokeStyle = K.crumbShade; g.lineWidth = 3; g.beginPath(); g.arc(bx, by, r + 3, 0.15 * Math.PI, 0.85 * Math.PI); g.stroke(); });
-      [[-9, -6], [8, -8], [0, -10], [-3, -3]].forEach(([bx, by]) => dot(bx, by, 1.3, K.crumbShade));
+      BITES.forEach(([bx, by, r]) => dot(bx, by, r + 6.5, K.crumb));
+      BITE_TEETH.forEach(([bx, by, r]) => { const g = c(); g.strokeStyle = K.crumbShade; g.lineWidth = 2.2; g.lineCap = 'round'; g.beginPath(); g.arc(bx, by, r + 2.8, 0.1 * Math.PI, 0.9 * Math.PI); g.stroke(); });
+      [[-10, -8], [3, -3], [12, -4], [-4, -10]].forEach(([bx, by]) => dot(bx, by, 1.2, K.crumbShade));
     };
-    breadFace(O, I, [[-8, 2, 2], [9, -6, 1.6], [4, 10, 1.8], [-14, 12, 1.4]], state === 1 ? biteEdge : null);
+    breadFace(O, I, [[-8, 6, 2], [9, 0, 1.6], [4, 11, 1.8], [-15, 13, 1.4]], bitten ? biteEdge : null);
     c().restore();
-  };
-  // state 2: the leftover crust — a fat golden arch, nibbled along the inside, ragged ends
+  });
+  // state 2: the leftover crust — a fat golden arch, nibbled along the inside, rounded torn ends
   function crust() {
-    const outer = T.arcPts(0, 12, 36, 38, Math.PI * 1.02, Math.PI * 1.98, 12);
-    const inner = T.arcPts(0, 14, 23, 23, Math.PI * 1.96, Math.PI * 1.04, 12)
-      .map(([x, y], i) => [x, y + 2 * Math.abs(Math.sin(i * 1.6))]);                   // tooth scallops
-    const B = T.chaikin(T.J(outer.concat([[33, 18], [29, 15], [30, 20]], inner, [[-27, 19], [-31, 15], [-35, 20]]), 0.9), 2);
+    const outer = T.arcPts(0, 12, 36, 38, Math.PI * 1.02, Math.PI * 1.98, 16);
+    // inside edge: five soft tooth marks (smooth waves, no cusps — they stay clean under the brush line)
+    const inner = Array.from({ length: 17 }, (_, i) => {
+      const u = i / 16, a = Math.PI * (1.96 - 0.92 * u), r = 22.9 - 1.5 * Math.cos(TAU * u * 4);
+      return [Math.cos(a) * r, 14 + Math.sin(a) * r];
+    });
+    // rounded torn cap from point a to point b, bulging away from the arch (a little wobble = torn)
+    const cap = (a, b, n = 5) => {
+      const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, r = Math.hypot(b[0] - a[0], b[1] - a[1]) / 2;
+      const a0 = Math.atan2(a[1] - my, a[0] - mx);                     // sweep through "down" (away from the arch)
+      return Array.from({ length: n }, (_, i) => {
+        const u = (i + 1) / (n + 1), ang = a0 + Math.PI * u, rr = r * (1.04 + 0.08 * Math.sin(i * 2.7));
+        return [mx + Math.cos(ang) * rr, my + Math.sin(ang) * rr];
+      });
+    };
+    const ring = [...outer, ...cap(outer[outer.length - 1], inner[0]), ...inner, ...cap(inner[inner.length - 1], outer[0])];
+    const B = T.chaikin(T.J(ring, 0.4), 2);
     T.fillPts(B, K.crust);
     clipped(B, () => {
       T.fillPts(shift(B, 3, 4), K.crustShade); T.fillPts(shift(B, 1.5, 2), K.crust);
       T.fillPts(shift(B.map(([x, y]) => [x * 0.9, y * 0.9]), -2, -2), K.crustHi); T.fillPts(B.map(([x, y]) => [x * 0.93, y * 0.93 + 2]), K.crust);
-      T.stroke(T.chaikin(inner, 1, false).slice(1, -1).map(([x, y]) => [x * 1.03, y * 1.03]), 4, K.crumb, 0.8, 0.4);   // crumb left inside
+      // crumb left along the WHOLE bitten inside edge (and round into both torn ends)
+      const rim = T.arcPts(0, 14, 23.5, 23.5, Math.PI * 2.03, Math.PI * 0.97, 22);
+      T.ribbon(rim, false, () => 6.5, K.crumb);
+      T.ribbon(T.arcPts(0, 14, 27.2, 27.2, Math.PI * 1.9, Math.PI * 1.1, 16), false, (i, n) => 1.6 * Math.sin(Math.PI * i / (n - 1)), K.crumbShade);
     });
     T.ink(B, 4.2);
   }
@@ -170,8 +320,9 @@
   // ─────────────────────────── book ───────────────────────────
   // text lines on a page panel [x0..x1] (x1 may be < x0 for a mirrored page)
   function pageLines(x0, x1, top, n, seed) {
-    const w = x1 - x0; if (Math.abs(w) < 14) return;
+    const w = x1 - x0;
     for (let i = 0; i < n; i++) {
+      if (Math.abs(w) < 14) { T.J(PAD); continue; }                  // keep the jitter count constant
       const L = 0.55 + 0.4 * T.hash(seed + i * 3.1), a = x0 + w * 0.14, b = x0 + w * (0.14 + 0.72 * L), yy = top + 14 + i * 12;
       T.stroke([[a, yy], [b, yy + 0.5]], 2.6, K.textLine, 0.3, 0.5);
     }
@@ -183,7 +334,7 @@
     const r = Math.min(Math.abs(w) * 0.22, 13);
     T.shape(T.star4Pts(m, (top + bot) / 2 + 12, r, 0).map(([px, py]) => [m + (px - m) * Math.sign(w || 1), py]), C.PAPER, 2.6, { jitter: 0.6 });
   }
-  P.book = (x, y, s = 1, rot = 0, open = 1) => {
+  P.book = budget('book', 16, (x, y, s = 1, rot = 0, open = 1) => {
     const g = begin(x, y, s, rot);
     if (open < 0) {                                                    // lying flat on the bench: edge view
       T.shape(T.rrectPts(-52, -12, 104, 22, 4), K.cover, 4.2);
@@ -195,39 +346,46 @@
     const o = T.clamp(open), W = 62, H = 42, a = o * Math.PI;
     const sx = T.lerp(-W / 2, 0, o);                                   // spine x
     const topAt = (px) => -H + 5 * (1 - Math.abs(px - sx) / W) * o;      // page tops dip toward the spine when open
+    const details = T.smooth(0.45, 0.65, o);                           // page text & picture fade in (no pop)
     // back cover + right page block (hidden while closed)
     if (o > 0.02) {
       T.shape([[sx, -H + 1], [sx + W + 4, -H - 2], [sx + W + 4, H + 2], [sx, H + 4]], K.cover, 4.2, { jitter: 1 });
       const pg = [[sx, topAt(sx) + 4], [sx + W - 2, -H + 2], [sx + W - 2, H - 2], [sx, H]];
       const Pp = T.shape(pg, K.page, 3.2, { jitter: 0.7 });
       clipped(Pp, () => T.fillPts(shift(Pp, -W * 0.75, 0), T.rgba('#D8CCB4', 0.35)));  // gutter shade
-      if (o > 0.5) {
+      faded(details, [sx - 2, -H - 4, sx + W + 4, H + 4], () => {
         pageLines(sx + 2, sx + W - 4, -H + 2, 3, 11);
         // small picture on the right page: sun over a green hill
         const px = sx + W * 0.2, pw = W * 0.64, py = 0;
         T.shape([[px, py], [px + pw, py], [px + pw, py + 26], [px, py + 26]], '#CDE8F2', 2.4, { jitter: 0.5 });
         T.blob(px + pw * 0.28, py + 9, 5, 5, C.gold, 1.8, 10);
         T.shape([[px, py + 26], [px, py + 19], [px + pw * 0.5, py + 14], [px + pw, py + 20], [px + pw, py + 26]], C.grass, 2, { jitter: 0.4 });
-      }
+      });
     }
     // front cover swinging around the spine
-    const ex = sx + W * Math.cos(a), bulge = 1 + 0.08 * Math.sin(a);
+    const ca = Math.cos(a), ex = sx + W * ca, bulge = 1 + 0.08 * Math.sin(a);
     const cv = [[sx, -H], [ex, -H * bulge], [ex, H * bulge], [sx, H + 2]];
-    if (Math.cos(a) >= 0) {                                           // still on the right: we see the cover front
-      const Cv = T.shape(cv, K.cover, 4.4, { jitter: 1 });
+    const cw = Math.abs(ex - sx), clw = T.lerp(2.2, 4.4, T.clamp((cw - 6) / 22));   // thinner ink on a foreshortened cover
+    if (Math.abs(ca) < 0.1) {                                         // edge-on: just the board's thin edge
+      const mx = (sx + ex) / 2;
+      T.stroke([[mx, -H * bulge + 1], [mx, H * bulge + 1]], 3.4, K.coverShade, 0.15, 0.5);
+    } else if (ca > 0) {                                              // still on the right: we see the cover front
+      const Cv = T.shape(cv, K.cover, clw, { jitter: 1 });
       clipped(Cv, () => { T.fillPts(shift(Cv, 0, 8), K.coverShade); T.fillPts(shift(Cv, 0, 4), K.cover); T.fillPts([[sx, -H - 5], [sx + 10, -H - 5], [sx + 10, H + 5], [sx, H + 5]], K.coverShade); });
       coverArt(sx + 8, ex, -H, H);
       if (o < 0.05) T.stroke([[ex - 2, -H + 6], [ex - 2, H - 4]], 2.2, K.pageEdge, 0.3, 0.5);  // page edge peeking
     } else {                                                          // flipped to the left: cover inside + left page
-      T.shape(cv, K.cover, 4.2, { jitter: 1 });
-      const lp = [[sx, topAt(sx) + 4], [ex + 3, -H * bulge + 3], [ex + 3, H * bulge - 3], [sx, H]];
-      const Lp = T.shape(lp, K.page, 3.2, { jitter: 0.7 });
-      clipped(Lp, () => T.fillPts(shift(Lp, W * 0.78, 0), T.rgba('#D8CCB4', 0.35)));
-      if (o > 0.6) pageLines(sx - 3, ex + 4, -H + 2, 5, 3);
+      T.shape(cv, K.cover, clw, { jitter: 1 });
+      if (cw > 12) {                                                  // left page only once it has some width
+        const lp = [[sx, topAt(sx) + 4], [ex + 3, -H * bulge + 3], [ex + 3, H * bulge - 3], [sx, H]];
+        const Lp = T.shape(lp, K.page, T.lerp(2, 3.2, T.clamp((cw - 12) / 16)), { jitter: 0.7 });
+        clipped(Lp, () => T.fillPts(shift(Lp, W * 0.78, 0), T.rgba('#D8CCB4', 0.35)));
+        faded(details, [ex - 4, -H - 6, sx + 2, H + 6], () => pageLines(sx - 3, ex + 4, -H + 2, 5, 3));
+      }
     }
     T.stroke([[sx, -H + 4], [sx, H]], 2.6, T.shade(K.cover, 0.35), 0.3, 0.6);   // spine / gutter line
     g.restore();
-  };
+  });
 
   // ─────────────────────────── lunchbox ───────────────────────────
   P.lunchbox = (x, y, s = 1) => {
@@ -247,7 +405,7 @@
   };
 
   // ─────────────────────────── crumbs ───────────────────────────
-  P.crumbs = (x, y, t0, t, seed = 1) => {
+  P.crumbs = budget('crumbs', 9, (x, y, t0, t, seed = 1) => {
     const dt = t - t0; if (dt < 0 || dt > 0.75) return;
     const g = c(); g.save();
     g.globalAlpha *= 1 - T.E.in(T.p(dt, 0.45, 0.75));
@@ -258,7 +416,7 @@
       T.shape(T.ell(px, py, r * 1.2, r, 7, dt * (6 + h1 * 8)), h3 > 0.35 ? K.crumb : K.crust, 2.2, { jitter: 0.5 });
     }
     g.restore();
-  };
+  });
 
   // ─────────────────────────── rain cloud ───────────────────────────
   const CLOUD_PARTS = [[-44, 6, 30], [-16, -14, 36], [20, -12, 32], [46, 6, 27], [2, 12, 40], [-26, 16, 26], [30, 16, 26]];
@@ -277,63 +435,69 @@
     const parts = CLOUD_PARTS.map(([px, py, r]) => T.ell(px, py, r, r * 0.82, 20));
     const J = union(parts, K.cloud, 4.4);
     // shading inside the silhouette: darker belly, lighter tops (lit from upper-left)
-    g.save(); g.beginPath(); J.forEach(p => { p.forEach(([px, py], k) => k ? g.lineTo(px, py) : g.moveTo(px, py)); g.closePath(); }); g.clip();
-    oval(6, 34, 70, 22, K.cloudShade);
-    CLOUD_PARTS.slice(0, 4).forEach(([px, py, r]) => oval(px - r * 0.25, py - r * 0.35, r * 0.55, r * 0.35, K.cloudHi, -0.3));
-    g.restore();
+    clippedAll(J, () => {
+      oval(6, 34, 70, 22, K.cloudShade);
+      CLOUD_PARTS.slice(0, 4).forEach(([px, py, r]) => oval(px - r * 0.25, py - r * 0.35, r * 0.55, r * 0.35, K.cloudHi, -0.3));
+    });
     // grumbly squiggle on the belly
     T.stroke([[-18, 22], [-10, 18], [-2, 23], [6, 18], [14, 23]], 2.6, T.shade(K.cloud, 0.35), 0.5, 0.6);
     g.restore();
   };
 
   // ─────────────────────────── poof ───────────────────────────
-  P.poof = (x, y, s = 1, u = 0) => {
+  // One cloud of overlapping puffs: pops (back-eased), then shrinks while the whole cel fades
+  // (alpha → 0 and line width → 0 over u .65–1) so it never breaks into separate little circles.
+  P.poof = budget('poof', 16, (x, y, s = 1, u = 0) => {
     if (u <= 0 || u >= 1) return;
     const g = begin(x, y, s);
     const grow = u < 0.28 ? T.E.back(u / 0.28) : 1 - T.E.in((u - 0.28) / 0.72);
-    const R = 16 + 30 * T.E.out(u), lw = 4.4 * (1 - 0.5 * u);
+    // ring radius grows only early and is capped by the puff size, so neighbours always overlap
+    const R = Math.min(16 + 30 * T.E.out(T.clamp(u / 0.35)), 34 * grow);
+    const fade = 1 - T.smooth(0.65, 1, u);
+    const lw = 4.4 * (1 - 0.3 * T.clamp(u / 0.65)) * fade;
     // flash star at the very start
     if (u < 0.3) T.star4(0, 0, 70 * (1 - u / 0.3) + 10, 0.4, C.PAPER, 3);
-    const parts = [];
-    for (let i = 0; i < 7; i++) {
-      const a = i / 7 * TAU + 0.4, r = (22 + 10 * T.hash(i * 2.3)) * grow;
-      if (r > 1) parts.push(T.ell(Math.cos(a) * R, Math.sin(a) * R * 0.8 - 8 * u, r, r * 0.9, 16));
-    }
-    if (grow > 0.02) parts.push(T.ell(0, -6 * u, 30 * grow, 26 * grow, 18));
-    if (parts.length) {
-      const J = union(parts, K.smoke, lw, 1);
-      g.save(); g.beginPath(); J.forEach(p => { p.forEach(([px, py], k) => k ? g.lineTo(px, py) : g.moveTo(px, py)); g.closePath(); }); g.clip();
-      J.forEach(p => { T.fillPts(shift(p, 5 * grow, 7 * grow), K.smokeShade); });
-      J.forEach(p => { T.fillPts(scaleAbout(p, 0.78, p[0][0] - (p[0][0] - p[14 % p.length][0]) / 2 - 3, p[4 % p.length][1] + 2), K.smoke); });
-      g.restore();
-    }
+    faded(fade, [-100, -100, 100, 90], () => {
+      const parts = [];
+      for (let i = 0; i < 7; i++) {
+        const a = i / 7 * TAU + 0.4, r = Math.max(0.5, (22 + 10 * T.hash(i * 2.3)) * grow);
+        parts.push(T.ell(Math.cos(a) * R, Math.sin(a) * R * 0.8 - 8 * u, r, r * 0.9, 16));
+      }
+      parts.push(T.ell(0, -6 * u, Math.max(0.5, 30 * grow), Math.max(0.5, 26 * grow), 18));
+      const J = union(parts, K.smokeShade, lw, 1);                    // whole cloud in shade first …
+      clippedAll(J, () => J.forEach(p => T.fillPts(shift(p, -4 * grow, -5 * grow), K.smoke)));   // … lit copy up-left
+    });
     // speed ticks flying out
-    for (let i = 0; i < 6; i++) {
-      const a = i / 6 * TAU + 0.1, r0 = R + 18 + 40 * u, r1 = r0 + 22 * (1 - u);
-      if (u < 0.75) T.stroke([[Math.cos(a) * r0, Math.sin(a) * r0 * 0.85], [Math.cos(a) * r1, Math.sin(a) * r1 * 0.85]], 4 * (1 - u), INK, 0.8, 0.5);
+    if (u < 0.75) for (let i = 0; i < 6; i++) {
+      const a = i / 6 * TAU + 0.1, r0 = R + 30 + 40 * u, r1 = r0 + 22 * (1 - u);
+      T.stroke([[Math.cos(a) * r0, Math.sin(a) * r0 * 0.85], [Math.cos(a) * r1, Math.sin(a) * r1 * 0.85]], 4 * (1 - u), INK, 0.8, 0.5);
     }
     g.restore();
-  };
+  });
 
   // ─────────────────────────── sparkles ───────────────────────────
-  P.sparkleBurst = (x, y, u, n = 8, R = 130, color = C.gold) => {
+  // Stars pop from zero (back-eased over u 0–.15) while flying out, and are never bigger than the gap
+  // to their neighbours, so the first frames read as a burst, not a knot.
+  P.sparkleBurst = budget('sparkleBurst', (x, y, u, n = 8) => 2 * n, (x, y, u, n = 8, R = 130, color = C.gold) => {
     if (u <= 0 || u >= 1) return;
     const g = c(); g.save();
-    const r = R * T.E.out(u), k = Math.pow(1 - u, 0.8);
+    const r = R * T.E.out(u), k = Math.pow(1 - u, 0.8), pop = Math.max(0, T.E.back(T.clamp(u / 0.15)));
     for (let i = 0; i < n; i++) {
       const a = i / n * TAU + 0.3, big = i % 2 === 0, rr = r * (big ? 1 : 0.78);
       const px = x + Math.cos(a) * rr, py = y + Math.sin(a) * rr * 0.85;
+      const gap = 2 * rr * Math.sin(Math.PI / n) * 0.45 + 1;                  // just under half the spacing to the next star
+      const size = Math.min(((big ? 20 : 12) * k + 3) * pop, gap);
       if (u < 0.45) {                                                   // streak from the centre early on
-        const r0 = rr * 0.45; T.stroke([[x + Math.cos(a) * r0, y + Math.sin(a) * r0 * 0.85], [px, py]], 3.2 * (1 - u / 0.45), color === C.PAPER ? INK : color, 0.9, 0.4);
+        const r0 = rr * 0.45; T.stroke([[x + Math.cos(a) * r0, y + Math.sin(a) * r0 * 0.85], [px, py]], 3.2 * (1 - u / 0.45) * pop, color === C.PAPER ? INK : color, 0.9, 0.4);
       }
-      T.star4(px, py, (big ? 20 : 12) * k + 3, u * 3 + i, color, 3);
-      if (big) dot(x + Math.cos(a + 0.35) * rr * 0.72, y + Math.sin(a + 0.35) * rr * 0.62, 3.5 * k, INK);
+      if (size > 0.8) T.star4(px, py, size, u * 3 + i, color, Math.min(3, size * 0.3));
+      if (big) dot(x + Math.cos(a + 0.35) * rr * 0.72, y + Math.sin(a + 0.35) * rr * 0.62, 3.5 * k * pop, INK);
     }
     g.restore();
-  };
+  });
 
   // ─────────────────────────── hearts ───────────────────────────
-  P.hearts = (x, y, u) => {
+  P.hearts = budget('hearts', 3, (x, y, u) => {
     if (u <= 0 || u >= 1) return;
     [[-46, 0, 1.35, 0], [44, -22, 1.0, 0.12], [0, -64, 0.8, 0.25]].forEach(([dx, dy, sz, d], i) => {
       const v = T.clamp((u - d) / (1 - d)); if (v <= 0) return;
@@ -345,7 +509,7 @@
       oval(-8, -6, 4, 2.6, T.rgba('#FFFFFF', 0.85), -0.6);
       g.restore();
     });
-  };
+  });
 
   // ─────────────────────────── comic burst ───────────────────────────
   P.burst = (x, y, s = 1, label = 'Arf!') => {
@@ -372,7 +536,7 @@
   };
 
   // ─────────────────────────── speech bubble ───────────────────────────
-  P.speechBubble = (spec) => {
+  P.speechBubble = budget('speechBubble', 2, (spec) => {
     const g = c(), px = spec.px || 54, lh = px * 1.08, padX = px * 0.7, padY = px * 0.5;
     const lines = spec.lines && Array.isArray(spec.lines) ? spec.lines : String(spec.text || '').split('\n');
     g.save(); g.font = T.FONT(px);
@@ -380,10 +544,7 @@
     const w = Math.max(spec.w || 0, tw + padX * 2), h = lines.length * lh + padY * 2;
     const x0 = spec.x - w / 2, y0 = spec.y - h / 2;
     const tip = spec.tail || [spec.x, y0 + h + 60], sc = spec.scale ?? 1;
-    const box = { x0, y0, w, h };
-    if (sc <= 0.01) { g.restore(); return box; }
-    g.translate(tip[0], tip[1]); g.scale(sc, sc); g.translate(-tip[0], -tip[1]);
-    const shout = spec.style === 'shout';
+    const shout = spec.style === 'shout', lw = 4.6;
     // balloon outline: a rounded rect with soft bulges (talk) or a spiky edge (shout)
     let body;
     if (shout) {
@@ -404,8 +565,14 @@
     const bend = (a, b, u, k) => { const mx = T.lerp(a[0], b[0], u), my = T.lerp(a[1], b[1], u); return [mx + nx / nl * k, my + ny / nl * k]; };
     const L0 = [bx - nx / nl * bw, by - ny / nl * bw], R0 = [bx + nx / nl * bw, by + ny / nl * bw];
     const tail = [L0, bend(L0, tip, 0.5, 6), tip, bend(R0, tip, 0.5, 8), R0];
+    // outer bounds of everything inked (at scale 1): points + jitter + line width
+    let ox0 = 1e9, oy0 = 1e9, ox1 = -1e9, oy1 = -1e9;
+    body.concat(tail).forEach(([qx, qy]) => { ox0 = Math.min(ox0, qx); oy0 = Math.min(oy0, qy); ox1 = Math.max(ox1, qx); oy1 = Math.max(oy1, qy); });
+    const m = lw * 1.3 + 1.5;
+    const box = { x0, y0, w, h, outer: { x0: ox0 - m, y0: oy0 - m, w: ox1 - ox0 + 2 * m, h: oy1 - oy0 + 2 * m } };
+    if (sc <= 0.01) { g.restore(); return box; }
+    g.translate(tip[0], tip[1]); g.scale(sc, sc); g.translate(-tip[0], -tip[1]);
     const Jb = T.J(body, 1.2), Jt = T.J(tail, 1);
-    const lw = 4.6;
     T.ink(Jt, lw * 2); T.ink(Jb, lw * 2);
     T.fillPts(Jt, C.PAPER); T.fillPts(Jb, C.PAPER);
     // text (typewriter): visibleChars counts '\n' as one char
@@ -420,10 +587,10 @@
     });
     g.restore();
     return box;
-  };
+  });
 
   // ─────────────────────────── motion lines ───────────────────────────
-  P.motionLines = (pts, u = 1) => {
+  P.motionLines = budget('motionLines', 4, (pts, u = 1) => {
     if (u <= 0 || !pts || pts.length < 2) return;
     const g = c(); g.save(); g.globalAlpha *= T.clamp(u);
     // cumulative length so each line can be trimmed along the path
@@ -441,5 +608,5 @@
       T.stroke(line, 4.2, INK, 0.9, 0.6);
     });
     g.restore();
-  };
+  });
 })();

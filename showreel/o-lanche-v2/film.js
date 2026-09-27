@@ -108,7 +108,7 @@
     if (t >= EV.s5 && t < EV.stars) { Q.look = [1, 0.15]; if (t >= EV.pop) { Q.look = [1, 0.35]; Q.brows = { raise: 0.8 * sad, knit: -0.4 }; Q.lids = 0.2; } }
     // S6: stars!
     if (t >= EV.stars) {
-      Q.sparkle = t < EV.land + 0.3 ? 1 : 0; Q.brows = { raise: 1, knit: 0 }; Q.lids = 0; Q.blush = 0.7;
+      Q.sweat = 0; Q.sparkle = t < EV.land + 0.3 ? 1 : 0; Q.brows = { raise: 1, knit: 0 }; Q.lids = 0; Q.blush = 0.7;
       Q.mouth = { smile: 1, open: 0.55, viseme: 'A' }; Q.look = [1, 0];
       Q.sq = Q.sq - 0.08 * decay(t, EV.stars, 9);
     }

@@ -26,7 +26,7 @@
     ground: 860, pathTop: 830, pathBot: 975, grassTop: 770,
     seatTop: 740, benchX0: 850, benchX1: 1390, backTop: 600, backBot: 676, hip: 740,
     leoStandX: 760, leoSitX: 945, biaSitX: 1240, dogX: 1095, dogY: 905,
-    treeX: 380, lampX: 1705,
+    treeX: 380, lampX: 1728,
     REF: { cx: 1010, cy: 590, z: 1.22 },
   };
   const REF = WORLD.REF;
@@ -43,9 +43,9 @@
     mid: '#A7D08A', midLine: '#86B270', midTree: '#7EB96A', midTreeLine: '#5F9A55',
     houseLine: '#6D5E6E', glass: '#FFE7A3', frame: '#FFF8EA',
     near: '#97C676', nearLine: '#74A95C', nearTree: '#6CAE5C', nearTreeHi: '#86C46C',
-    fence: '#D8B489', fenceLine: '#8E6E52',
+    fence: '#CDB88F', fenceLine: '#A08B6C',             // low contrast: stays quiet behind the kids
     grass: C.grass, grassDark: C.grassDark, grassLight: '#A2D07C', lawnLine: '#6FA84F',
-    bgInk: '#3C4A3A',
+    bgInk: '#3C4A3A', bushLine: '#4F8A45',
     bark: '#8A5A3B', barkShade: '#6B4430', barkHi: '#A8744D',
     leaf: '#5FA85A', leafShade: '#4A8F4C', leafDeep: '#3F7D45', leafHi: '#80C266', fruit: '#E85D3F',
     bush: '#6DB35E', bushShade: '#569C4E', bushHi: '#8ECA74', blossom: '#F59AB4', blossom2: '#FFF4E6',
@@ -141,7 +141,7 @@
     c.restore();
   }
   function sun() {
-    const c = T.ctx, x = 620, y = 222;
+    const c = T.ctx, x = 730, y = 212;   // screen-searched over every film shot: clear of canopy & heads
     const g = c.createRadialGradient(x, y, 40, x, y, 340);
     g.addColorStop(0, `rgba(${K.glow},0.75)`); g.addColorStop(0.35, `rgba(${K.glow},0.28)`); g.addColorStop(1, `rgba(${K.glow},0)`);
     c.fillStyle = g; c.fillRect(x - 360, y - 360, 720, 720);
@@ -265,19 +265,19 @@
     [430, 74, 46, '#F4B183', '#A45A4A', { chimney: 1 }],
     [540, 58, 70, '#EFE4CC', '#5F7FA8', { floors: 2 }],
     [650, 68, 44, '#F6D66E', '#B8574A', {}],
-    [1428, 70, 46, '#EDA396', '#6E5A7E', { chimney: 1 }],
-    [1545, 62, 66, '#A5D4C3', '#B8574A', { floors: 2 }],
-    [1660, 72, 44, '#F4C48E', '#5F7FA8', {}],
-    [1775, 60, 48, '#E4D6F0', '#A45A4A', { chimney: 1 }],
+    [1420, 70, 46, '#EDA396', '#6E5A7E', { chimney: 1 }],        // right cluster spaced so the lamp (1728) and the
+    [1530, 62, 66, '#A5D4C3', '#B8574A', { floors: 2 }],         // near-hill tree (1585) fall in gaps, not on walls/doors
+    [1640, 72, 44, '#F4C48E', '#5F7FA8', {}],
+    [1790, 60, 48, '#E4D6F0', '#A45A4A', { chimney: 1 }],
   ];
   function midHills() {
     hill(MID, K.mid, K.midLine, 2.4);
     // lollipop trees behind/between houses
-    [[370, 16], [488, 12], [600, 14], [715, 15], [1372, 15], [1488, 12], [1605, 14], [1720, 13], [1840, 16], [260, 13], [1950, 14]].forEach(([x, r]) =>
+    [[370, 16], [488, 12], [600, 14], [715, 15], [1368, 15], [1476, 12], [1588, 14], [1712, 13], [1855, 16], [260, 13], [1950, 14]].forEach(([x, r]) =>
       roundTree(x, hillY(x, ...MID) + 8, r, K.midTree, K.midTreeLine, 1.6));
     HOUSES.forEach(([x, w, h, wall, roof, o]) => house(x, hillY(x, ...MID) + 12, w, h, wall, roof, o));
     // white picket fences in front of the houses
-    [[395, 690], [1392, 1810]].forEach(([a, b]) => picket(a, b, hillY((a + b) / 2, ...MID) + 20, 10, '#F4EEE2', '#B9AEA8'));
+    [[395, 660], [1392, 1830]].forEach(([a, b]) => picket(a, b, hillY((a + b) / 2, ...MID) + 20, 10, '#F4EEE2', '#B9AEA8'));
   }
   function nearHills() {
     const P = hill(NEAR, K.near, K.nearLine, 2.6);
@@ -286,14 +286,15 @@
       fill(top.concat(top.slice().reverse().map(([x, y]) => [x, y + 16])), T.tint(K.near, 0.14));
     });
     // split-rail fence running along the near hill (right side) and a bit on the left
+    // posts every 70 px from x0; the rails stop at the last post (no dangling rail ends)
     const fence = (x0, x1) => {
-      const yAt = x => hillY(x, ...NEAR) + 26;
-      [0.35, 0.72].forEach(k => stroke(Array.from({ length: 9 }, (_, i) => { const x = T.lerp(x0, x1, i / 8); return [x, yAt(x) - 30 * k]; }), 4.2, K.fence, 0, 0.4));
-      for (let x = x0; x <= x1 + 1; x += 70) shape(T.rrectPts(x - 3.5, yAt(x) - 36, 7, 38, 2, 2), K.fence, 1.6, K.fenceLine, 0.3);
+      const yAt = x => hillY(x, ...NEAR) + 26, xe = x0 + Math.floor((x1 - x0) / 70) * 70;
+      [0.35, 0.72].forEach(k => stroke(Array.from({ length: 9 }, (_, i) => { const x = T.lerp(x0, xe, i / 8); return [x, yAt(x) - 30 * k]; }), 3.6, K.fence, 0, 0.4));
+      for (let x = x0; x <= xe + 1; x += 70) shape(T.rrectPts(x - 3.5, yAt(x) - 36, 7, 38, 2, 2), K.fence, 1.4, K.fenceLine, 0.3);
     };
-    fence(1180, 2300); fence(-400, 600);
-    // two big round trees on the near hill
-    [[690, 38], [1610, 44], [-120, 40], [2150, 42]].forEach(([x, r]) => roundTree(x, hillY(x, ...NEAR) + 16, r, K.nearTree, K.nearLine, 2.2, '#8A6450'));
+    fence(1470, 2300); fence(-400, 600);                                    // right run starts past the bench & Bia
+    // round trees on the near hill (trunks between fence posts, canopies clear of the house doors)
+    [[690, 38], [1584, 32], [-120, 40], [2150, 42]].forEach(([x, r]) => roundTree(x, hillY(x, ...NEAR) + 16, r, K.nearTree, K.nearLine, 2.2, '#8A6450'));
   }
 
   // ───────────────────────── park lawn, big tree, bushes ─────────────────────────
@@ -345,7 +346,7 @@
     const sway = Math.sin(t * 0.9) * 2;
     const clumps = [[x - 150, by - 450, 88], [x - 70, by - 540, 104], [x + 50, by - 568, 108], [x + 160, by - 500, 96], [x + 200, by - 420, 70],
       [x - 200, by - 390, 64], [x - 60, by - 430, 90], [x + 80, by - 435, 96], [x - 10, by - 630, 76], [x + 120, by - 610, 70], [x - 140, by - 560, 66]];
-    const canopy = union(clumps.map(([cx, cy, r], i) => T.ell(cx + sway * (1 - (cy - by + 600) / 400), cy, r, r * 0.9, 24)), K.leaf, 3.2, INKC, 1.5);
+    const canopy = union(clumps.map(([cx, cy, r], i) => T.ell(cx + sway * (1 - (cy - by + 600) / 400), cy, r, r * 0.9, 24)), K.leaf, 2.6, K.leafDeep, 1.5);
     clipTo(canopy, () => {
       clumps.forEach(([cx, cy, r]) => oval(cx + r * 0.3, cy + r * 0.38, r * 0.85, r * 0.6, K.leafShade));
       oval(x + 40, by - 382, 250, 66, K.leafDeep);                                                 // underside in shadow
@@ -380,7 +381,7 @@
   function bush(x, by, r, flowers = true) {
     const c = T.ctx; c.save(); c.globalAlpha = 0.6; oval(x + r * 0.35, by + 2, r * 1.35, r * 0.16, T.C.shadow); c.restore();
     const parts = [T.ell(x - r * 0.55, by - r * 0.45, r * 0.6, r * 0.5, 18), T.ell(x, by - r * 0.7, r * 0.72, r * 0.66, 20), T.ell(x + r * 0.6, by - r * 0.42, r * 0.58, r * 0.48, 18), T.ell(x, by - r * 0.25, r * 1.05, r * 0.3, 20)];
-    const P = union(parts, K.bush, 2.6, K.bgInk, 0.8);
+    const P = union(parts, K.bush, 1.8, K.bushLine, 0.8);                        // soft green line: never competes with character ink
     clipTo(P, () => {
       oval(x + r * 0.35, by - r * 0.15, r * 1.0, r * 0.45, K.bushShade);
       oval(x - r * 0.3, by - r * 0.95, r * 0.45, r * 0.28, K.bushHi, -0.3);
@@ -493,20 +494,25 @@
     blurred(5.2 * k, () => layer(cam, 0.42, 600, midHills, 0.2));
     blurred(4 * k, () => layer(cam, 0.62, 700, nearHills, 0.08));
     blurred(2.6 * k, () => layer(cam, 0.85, 800, () => { lawn(); bigTree(t); SEED = 880; fallingLeaves(t); }));
-    blurred(1.2 * k, () => layer(cam, 0.95, 900, bushes));
+    blurred(2.4 * k, () => layer(cam, 0.95, 900, bushes));
     layer(cam, 1, 1000, () => pathLayer(t));
   };
 
   // ───────────────────────── public: bench ─────────────────────────
-  // Wooden slats on cast-iron ends.  Seat top y = 740 (hip line), backrest planks 600–628 & 648–676,
-  // spans x 850–1390, feet on the ground at y ≈ 860.  Full-ink lines: it lives in the character plane.
+  // Wooden slats on cast-iron ends, seen slightly from above.  Backrest planks 600–628 & 648–676; under
+  // them the rear of the seat in shadow (676–712); the lit seat top (712–742, two slat seams); the thick
+  // front slat (738–764, its top = hip line 740).  Back posts sit 10 px inward and 8 px higher than the
+  // front legs (a hint of perspective).  Each end has a one-piece armrest: an iron S-scroll rising from
+  // the front leg to a wooden rest that runs back to the back post.  Spans x 850–1390, feet at y ≈ 860.
+  // Full-ink lines: it lives in the character plane.
   S.drawBench = (t = 0) => {
     SEED = 2000;
     const INK = C.INK, lw = 4.2, X0 = WORLD.benchX0, X1 = WORLD.benchX1;
-    const c = T.ctx;
+    const BACK = 46, FRONT = 34;                                           // post / leg inset from each end
     // cast shadows on the path, thrown to the right (sun upper-left): seat slab + the four feet
     softShadow([[X0 + 20, 856], [X1 - 14, 856], [X1 + 64, 884], [X0 + 96, 884]], 0.8, 5);
-    [X0 + 34, X1 - 34].forEach(x => softShadow(T.ell(x + 22, 866, 30, 6, 14), 0.9, 2));
+    [X0 + FRONT, X1 - FRONT].forEach(x => softShadow(T.ell(x + 22, 866, 30, 6, 14), 0.9, 2));
+    [X0 + BACK, X1 - BACK].forEach(x => softShadow(T.ell(x + 20, 854, 22, 4.5, 12), 0.6, 2));
     // plank with top highlight, bottom shade, grain and bolts
     const plank = (x0, y0, w, h, bolts) => {
       const P = shape(T.rrectPts(x0, y0, w, h, 7, 3), K.wood, 0, INK, 1.1);
@@ -518,43 +524,77 @@
       ink(P, lw, INK);
       bolts.forEach(bx => { oval(bx, y0 + h * 0.45, 3.2, 3.2, INK); oval(bx - 0.8, y0 + h * 0.45 - 0.8, 1, 1, '#8A7A70'); });
     };
-    // iron end frames: back post (behind the backrest) + front leg + scrolled armrest
-    const end = (x, dir) => {
-      shape([[x - 8, 590], [x + 8, 590], [x + 9, 856], [x - 9, 856]], K.iron, lw, INK, 0.6);
-      shape(T.ell(x, 588, 10, 7, 12), K.iron, lw * 0.8, INK, 0.3);
-    };
-    end(X0 + 36, -1); end(X1 - 36, 1);
-    plank(X0 + 8, 600, X1 - X0 - 16, 28, [X0 + 36, X1 - 36]);
-    plank(X0 + 8, 648, X1 - X0 - 16, 28, [X0 + 36, X1 - 36]);
-    // seat: top surface (seen slightly from above) then the thick front slat
-    shape([[X0 + 14, 722], [X1 - 14, 722], [X1 - 2, 742], [X0 + 2, 742]], K.woodHi, lw * 0.8, INK, 0.8);
-    stroke([[X0 + 14, 731], [X1 - 10, 731]], 2, K.grain, 0.2, 0.4);
-    // front legs with little scroll feet
-    [[X0 + 34, -1], [X1 - 34, 1]].forEach(([x, d]) => {
+    // 1 — back posts (further away: inset more, feet higher), behind everything else
+    [X0 + BACK, X1 - BACK].forEach(x => {
+      shape([[x - 7, 590], [x + 7, 590], [x + 8, 848], [x - 8, 848]], K.iron, lw, INK, 0.6);
+      shape([[x - 12, 856], [x - 9, 844], [x + 9, 844], [x + 12, 856]], K.iron, lw * 0.85, INK, 0.4);
+      shape(T.ell(x, 588, 9, 6.5, 12), K.iron, lw * 0.8, INK, 0.3);
+    });
+    // 2 — rear of the seat, in the shadow of the backrest: separates the back from the seat top
+    const R = shape([[X0 + 18, 674], [X1 - 18, 674], [X1 - 16, 714], [X0 + 16, 714]], T.shade(K.woodDark, 0.18), lw * 0.8, INK, 0.6);
+    clipTo([R], () => { fill([[X0, 700], [X1, 700], [X1, 716], [X0, 716]], T.shade(K.woodDark, 0.05)); stroke([[X0 + 24, 690], [X1 - 24, 690]], 1.8, T.shade(K.woodDark, 0.4), 0.2, 0.4); });
+    // 3 — backrest planks
+    plank(X0 + 8, 600, X1 - X0 - 16, 28, [X0 + BACK, X1 - BACK]);
+    plank(X0 + 8, 648, X1 - X0 - 16, 28, [X0 + BACK, X1 - BACK]);
+    // 4 — seat top (seen from above): lit slats with two seams
+    const Sd = shape([[X0 + 12, 710], [X1 - 12, 710], [X1 - 2, 742], [X0 + 2, 742]], K.woodHi, lw * 0.8, INK, 0.8);
+    clipTo([Sd], () => {
+      fill([[X0, 710], [X1, 710], [X1, 717], [X0, 717]], T.shade(K.woodHi, 0.12));        // back edge falls into shade
+      [720.5, 731].forEach((y, i) => stroke([[X0 + 12 - i * 4, y], [X1 - 12 + i * 4, y + 0.5]], 2, K.grain, 0.15, 0.4));
+      for (let i = 0; i < 6; i++) { const gx = X0 + 60 + H(i * 7.7) * (X1 - X0 - 160); stroke([[gx, 725 + (i % 2) * 10], [gx + 50, 725.5 + (i % 2) * 10]], 1.3, T.rgba(K.grain, 0.6), 0.8, 0.3); }
+    });
+    // 5 — front legs with little scroll feet
+    [[X0 + FRONT, -1], [X1 - FRONT, 1]].forEach(([x, d]) => {
       shape([[x - 9, 760], [x + 9, 760], [x + 10, 852], [x - 10, 852]], K.iron, lw, INK, 0.6);
       shape([[x - 16, 864], [x - 12, 850], [x + 12, 850], [x + 16, 864]], K.iron, lw * 0.9, INK, 0.5);
       stroke([[x - 4, 770], [x - 4, 846]], 2.4, K.ironHi, 0.5, 0.3);
     });
-    plank(X0, 738, X1 - X0, 26, [X0 + 34, X1 - 34]);
-    // armrests: an iron upright from the seat with a rounded wooden rest on top, at each end
-    [[X0 + 20, -1], [X1 - 20, 1]].forEach(([x, d]) => {
-      shape([[x - 6, 742], [x - 5, 700], [x + 5, 700], [x + 6, 742]], K.iron, lw * 0.9, INK, 0.4);
-      const R = shape(T.rrectPts(x - 26 + d * 6, 688, 52, 15, 7, 3), K.wood, 0, INK, 0.5);
-      clipTo([R], () => { fill(T.rrectPts(x - 30 + d * 6, 697, 60, 12, 4, 2), K.woodDark); fill(T.rrectPts(x - 20 + d * 6, 690, 34, 3.5, 2, 2), K.woodHi); });
-      ink(R, lw, INK);
+    // 6 — front slat
+    plank(X0, 738, X1 - X0, 26, [X0 + FRONT, X1 - FRONT]);
+    // 7 — armrests, one piece each: iron S-scroll from the front leg up to the rest's front end, wooden rest
+    //     running back (up the screen) to the back post.  d = -1 left end, +1 right end; all inside [X0, X1].
+    const tube = (pts, w, col) => {                                        // inked iron tube
+      const c = T.ctx, P = wob(T.chaikin(pts, 2, false), 0.4);
+      T.path(P, false); c.lineCap = 'round'; c.lineJoin = 'round';
+      c.strokeStyle = INK; c.lineWidth = w + lw * 1.8; c.stroke(); c.strokeStyle = K.iron; c.lineWidth = w; c.stroke();
+      return P;
+    };
+    // polygon with its corners cut back r px, then smoothed: crisp but not sharp
+    const roundPoly = (pts, r) => T.chaikin(pts.flatMap((p, i) => {
+      const a = pts[(i - 1 + pts.length) % pts.length], b = pts[(i + 1) % pts.length];
+      const toward = (q) => { const dx = q[0] - p[0], dy = q[1] - p[1], l = Math.hypot(dx, dy) || 1, k = Math.min(r, l / 2) / l; return [p[0] + dx * k, p[1] + dy * k]; };
+      return [toward(a), toward(b)];
+    }), 1);
+    [[X0, -1], [X1, 1]].forEach(([xe, d]) => {
+      const xf = xe - d * FRONT, xb = xe - d * BACK;                       // front-leg x, back-post x
+      // S-scroll upright: from the seat above the front leg, bowing outward, back in under the rest
+      const S1 = tube([[xf, 745], [xf + d * 3, 737], [xf + d * 9, 729], [xf + d * 6, 720], [xf, 714]], 8, K.iron);
+      tube([[xf + d * 9, 729], [xf + d * 13, 733], [xf + d * 12, 738]], 4.5, K.iron);      // small scroll curl
+      stroke([[xf + d * 5.5, 740], [xf + d * 8.5, 731], [xf + d * 5, 721]], 2, K.ironHi, 0.6, 0.2);
+      // wooden rest: top surface running from above the front leg back (up the screen) to the back post,
+      // wider at the front (nearer), with its front end face showing below
+      const Fc = shape(roundPoly([[xf - 11, 702], [xf + 11, 702], [xf + 11, 712], [xf - 11, 712]], 3), K.woodDark, 0, INK, 0.4);
+      ink(Fc, lw * 0.9, INK);
+      const Rw = shape(roundPoly([[xf - 11, 704], [xf + 11, 704], [xb + 7, 661], [xb - 7, 661]], 4), K.wood, 0, INK, 0.4);
+      clipTo([Rw], () => { fill(shift(Rw, d * 6, 0), T.shade(K.wood, 0.1)); fill(shift(Rw, -d * 2, 0), K.wood); stroke([[xf - d * 5, 699], [xb - d * 2, 665]], 2.4, K.woodHi, 0.5, 0.3); });
+      ink(Rw, lw, INK);
     });
   };
 
   // ───────────────────────── public: foreground ─────────────────────────
+  // a clump of fat grass blades rooted at (x, by); a slightly darker "framing silhouette" value
+  const TUFT = ['#5C9A45', '#6CA94F', '#4F8B3E'], TUFT_LINE = '#2F4B2B';
   function tuft(x, by, h, n, t, seed) {
-    const sway = Math.sin(t * 1.6 + x * 0.013) * 0.05;
+    const sway = Math.sin(t * 1.6 + x * 0.013) * 0.05, w = 9 * Math.max(1, h / 110);
     const blades = [];
     for (let i = 0; i < n; i++) {
-      const u = n > 1 ? i / (n - 1) : 0.5, bx = x + (u - 0.5) * n * 9, a = (u - 0.5) * 0.9 + (H(seed + i) - 0.5) * 0.3 + sway, l = h * (0.55 + 0.45 * H(seed + i * 2.3)) * (1 - Math.abs(u - 0.5) * 0.6);
+      const u = n > 1 ? i / (n - 1) : 0.5, bx = x + (u - 0.5) * n * w, a = (u - 0.5) * 0.9 + (H(seed + i) - 0.5) * 0.3 + sway, l = h * (0.55 + 0.45 * H(seed + i * 2.3)) * (1 - Math.abs(u - 0.5) * 0.6);
       const tip = [bx + Math.sin(a) * l, by - Math.cos(a) * l], mid = [bx + Math.sin(a * 0.6) * l * 0.5, by - Math.cos(a * 0.6) * l * 0.5];
-      blades.push([[bx - 9, by + 4], [mid[0] - 6, mid[1]], tip, [mid[0] + 6, mid[1]], [bx + 9, by + 4]]);
+      blades.push([[bx - w, by + 90], [bx - w, by + 4], [mid[0] - w * 0.66, mid[1]], tip, [mid[0] + w * 0.66, mid[1]], [bx + w, by + 4], [bx + w, by + 90]]);
     }
-    blades.forEach((b, i) => { const P = shape(T.chaikin(b, 1), ['#78B656', '#95CD6E', '#6AA84C'][i % 3], 0, 0, 0.5); ink(P, 2.2, '#3B5E36'); });
+    // back blades first (the tallest, centre ones) so the short outer ones overlap them
+    blades.map((b, i) => [b, i]).sort((A, B) => Math.abs(B[1] - (n - 1) / 2) - Math.abs(A[1] - (n - 1) / 2) || A[1] - B[1])
+      .forEach(([b, i]) => { const P = shape(T.chaikin(b, 1), TUFT[i % 3], 0, 0, 0.5); ink(P, 2.4, TUFT_LINE); });
   }
   function daisy(x, by, h, t, seed) {
     const sway = Math.sin(t * 1.4 + x * 0.02) * 4, top = [x + sway, by - h];
@@ -565,9 +605,11 @@
   S.drawForeground = (t = 0, camIn) => {
     const cam = normCam(camIn), k = dofK(cam);
     blurred(4.5 * k, () => layer(cam, 1.2, 3000, () => {
-      [[150, 1066, 90, 7], [250, 1074, 110, 8], [360, 1070, 72, 6], [1690, 1072, 96, 7], [1790, 1064, 120, 9], [1890, 1074, 80, 6], [60, 1062, 104, 7]]
+      // few, larger clumps framing the bottom corners.  World coords of this f = 1.2 layer: at the REF wide
+      // camera the roots land ~40–60 px above the frame bottom, so most of each blade is in frame.
+      [[285, 990, 128, 8], [415, 1000, 86, 6], [1745, 986, 138, 9], [1612, 998, 90, 6]]
         .forEach(([x, y, h, n], i) => tuft(x, y, h, n, t, i * 13));
-      daisy(300, 1070, 104, t, 1); daisy(1740, 1070, 128, t, 2); daisy(1830, 1074, 88, t, 3);
+      daisy(350, 996, 96, t, 1); daisy(1680, 992, 112, t, 2);
     }));
   };
 })();

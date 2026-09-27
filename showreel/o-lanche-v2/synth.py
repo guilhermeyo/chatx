@@ -227,8 +227,10 @@ def babble_line(text, ct, who='leo', mood=None, seed=0):
         if mood == 'sad':
             d = min(0.24, d * 1.15)
         g = 1.0
-        if onset in FRIC:                                               # hiss before the vowel
-            buf.add(noise_burst(0.045, 3500, 9000, 50, seed + s_i) * 0.35, ts - t0)
+        if onset in FRIC:                                               # soft hiss before the vowel
+            # kept ~8 dB under the vowels and band-limited to 4-8 kHz: louder bursts were the harshest
+            # peaks in the whole voice stem (sibilance), made worse by mix.py's presence lift
+            buf.add(noise_burst(0.045, 4000, 8000, 50, seed + s_i) * 0.15, ts - t0)
         elif onset in PLOS:                                             # little click
             buf.add(noise_burst(0.012, 1500, 5000, 250, seed + s_i) * 0.5, ts - t0)
         buf.add(syllable(pitch, vowel, d, 1.3 if q else (0.85 if mood == 'sad' else 1.0), seed + s_i), ts - t0 + 0.012, g)
